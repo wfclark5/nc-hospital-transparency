@@ -104,7 +104,7 @@ export_data = {}
 
 structured_ext = ['.csv', 'wpfb_dl', '.xlsx', '.json']
 
-skip_hospital = ['university-of-north-carolina-hospital', 'atrium-health', 'wakemed']
+skip_hospital = ['university-of-north-carolina-hospital']
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'} # This is chrome, you can set whatever browser you like
 
@@ -146,9 +146,18 @@ for hospital_id, url_list in hospital_data_urls.items():
 
         if any(file_type in url for file_type in structured_ext):                
 
-            # get the data from the url
+            if 'wakemed' in hospital_id:
 
-            get_url_data(driver, url, is_download=True, download_path=download_path, wait=wait)
+                get_wakemed_data(driver,url)
+
+            if 'atrium-health' in hospital_id:
+
+                get_atrium_data(driver, url, download_path)
+                
+            else:
+                
+                get_url_data(driver, url, is_download=True, download_path=download_path, wait=wait)
+
 
 print(download_path)
 
@@ -167,4 +176,13 @@ if not_complete:
 print("Downloads complete and exported rest of urls")
 
 open('additional_exports.json', 'w').write(json.dumps(export_data))
+
+
+# write a function that takes in two arguments a json file and a filepath to convert a json file to a csv file with pandas 
+
+
+
+
+
+
 
