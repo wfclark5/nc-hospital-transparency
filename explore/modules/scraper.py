@@ -19,13 +19,7 @@ from random import uniform, randint
 import json
 from urllib.parse import urlsplit
 import urllib3
-import glob
 
-def json_to_csv(json, file):
-    
-    df = pd.read_json(json)
-
-    df.to_csv(file, index=False)
 
 def create_driver(download_path, driver_path):
 
@@ -118,43 +112,6 @@ def get_url_data(driver, url, is_download=False, download_path=None, wait=False)
     return driver
 
 
-def get_wakemed_data(driver, url):
-
-    """Get wakemed data from url"""
-
-    driver.get(url)
-
-    xpath = '/html/body/app-root/app-allservices/div[1]/div/div[3]/div/app-paginator/div[2]/div/div/button'
-
-    driver.execute_script("arguments[0].click();", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, xpath))))
-
-    driver.switch_to.alert.accept()
-
-    sleep(20)
-
-
-def get_atrium_data(driver, url, download_path):
-
-    """Get atrium data from url"""
-    
-    url_split = urlsplit(url)
-
-    url_path = url_split.path
-
-    url_path_split = url_path.split('/')
-
-    url_path_split = url_path_split[1:]
-
-    filename = url_path_split[1]
-
-    filepath = os.path.join(download_path, f"{filename}.csv")
-
-    http = urllib3.PoolManager()
-    
-    r = http.request('GET', url)
-
-    json_to_csv(r.data, filepath)
-
 
 def get_unc_data(driver, url):
 
@@ -172,17 +129,21 @@ def get_unc_data(driver, url):
     
     driver.find_element_by_xpath('/html/body/div[1]/div/div/div[2]/div/div[1]/div[1]/div[2]/div/a[2]').click()
 
-    sleep(10)
+    sleep(30)
 
     mainWin = driver.current_window_handle  
 
     # move the driver to the first iFrame 
     driver.switch_to_frame(driver.find_elements_by_tag_name("iframe")[0])
 
+    sleep(10)
+
     # *************  locate CheckBox  **************
     CheckBox = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID ,"recaptcha-anchor"))
             ) 
+
+    sleep(10)
 
     # *************  click CheckBox  ***************
     _wait_between(0.5, 0.7)  
