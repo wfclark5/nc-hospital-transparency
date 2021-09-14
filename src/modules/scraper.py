@@ -19,13 +19,34 @@ from random import uniform, randint
 import json
 from urllib.parse import urlsplit
 import urllib3
-import glob
+from glob import glob 
 
-def json_to_csv(json, file):
+# function to convert xlsx to csv
+
+def xlsx_to_csv(file_in, file_out):
+
+    """Convert xlsx to csv"""
+
+    df = pd.read_excel(file_in)
+
+    df.to_csv(file_out)
+
+# function to convert json to csv
+
+def json_to_csv(json, filepath, lines, encoding='utf-8'):
     
-    df = pd.read_json(json)
+    df = pd.read_json(json, lines=lines, encoding=encoding)
 
-    df.to_csv(file, index=False)
+    df.to_csv(filepath, index=False)
+
+
+def list_duplicates(seq):
+    seen = set()
+    seen_add = seen.add
+    # adds all elements it doesn't know yet to seen and all other to seen_twice
+    seen_twice = set( x for x in seq if x in seen or seen_add(x) )
+    # # turn the set into a list (as requested)
+    return list(seen_twice)
 
 def create_driver(download_path, driver_path):
 
@@ -133,7 +154,7 @@ def get_wakemed_data(driver, url):
     sleep(20)
 
 
-def get_atrium_data(driver, url, download_path):
+def get_atrium_data(url, download_path, lines):
 
     """Get atrium data from url"""
     
@@ -145,7 +166,7 @@ def get_atrium_data(driver, url, download_path):
 
     url_path_split = url_path_split[1:]
 
-    filename = url_path_split[1]
+    filename = url_path_split[1].replace('.json', '')
 
     filepath = os.path.join(download_path, f"{filename}.csv")
 
@@ -153,8 +174,22 @@ def get_atrium_data(driver, url, download_path):
     
     r = http.request('GET', url)
 
-    json_to_csv(r.data, filepath)
+    json_to_csv(r.data, filepath, lines)
 
+
+def get_northern_data(file_in, file_out):
+
+    df = pd.read_json(file_in, lines=True)
+
+    df_all = df.drop(columns=['PACKAGE_TYPE', 'PERCENT_OCCURRENCE_WITHIN_PRIMARY_CODE','SUPPORTING_SERVICE_CODE' ,'SUPPORTING_SERVICE_CODE_DESCRIPTION'])
+
+    for column in df_all:
+        if df_all[column].dtype == 'float64':
+            df_all[column]=pd.to_numeric(df_all[column], downcast='float')
+        if df_all[column].dtype == 'int64':
+            df_all[column]=pd.to_numeric(df_all[column], downcast='integer')
+
+    df.to_csv(file_out, index=False)
 
 def get_unc_data(driver, url):
 
