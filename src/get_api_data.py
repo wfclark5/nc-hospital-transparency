@@ -9,7 +9,9 @@ abspath = os.path.normpath(os.path.dirname(os.path.dirname(__file__)))
 
 hospitals = os.path.normpath(os.path.join(abspath, 'hospitals.csv'))
 
-download_path = os.path.normpath(os.path.join(abspath, 'data', 'raw'))
+raw_download_path = os.path.normpath(os.path.join(abspath, 'data', 'raw'))
+
+url_download_path = os.path.normpath(os.path.join(abspath, 'data', 'urls'))
 
 driver_path = os.path.join(abspath, 'drivers', 'chromedriver.exe')
 
@@ -19,7 +21,7 @@ df = pd.read_csv(hospitals)
 
 # loop through each hospital and ping standard charges page
 
-driver = create_driver(download_path, driver_path)
+driver = create_driver(raw_download_path, driver_path)
 
 hospital_data_urls = {}
 
@@ -84,7 +86,7 @@ for index, row in df.iterrows():
 
 # write to a json file
 
-open('hospital_data_urls.json', 'w').write(json.dumps(hospital_data_urls))
+open(os.path.join(url_download_path, 'hospital_data_urls.json'), 'w').write(json.dumps(hospital_data_urls))
 
 # remove hospital_data_urls keys where values are empty
 
@@ -104,14 +106,14 @@ export_data = {}
 
 structured_ext = ['.csv', 'wpfb_dl', '.xlsx', '.json']
 
-skip_hospital = ['university-of-north-carolina-hospital']
+skip_hospital = ['university-of-north-carolina-hospital', 'atrium-health', 'wakemed']
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'} # This is chrome, you can set whatever browser you like
 
 # remove all files in download_path
 
-for file in os.listdir(download_path):
-    file_path = os.path.join(download_path, file)
+for file in os.listdir(raw_download_path):
+    file_path = os.path.join(raw_download_path, file)
     try:
         if os.path.isfile(file_path):
             os.unlink(file_path)
@@ -134,6 +136,8 @@ for hospital_id, url_list in hospital_data_urls.items():
 
     for index, url in enumerate(url_list):
 
+        print(url)
+
         # if url ends with .csv, .xlsx, .json, or .wpfb_dl then download data
 
         if index == 0:
@@ -145,28 +149,16 @@ for hospital_id, url_list in hospital_data_urls.items():
             wait = False
 
         if any(file_type in url for file_type in structured_ext):                
-
-            if 'wakemed' in hospital_id:
-
-                get_wakemed_data(driver,url)
-
-            if 'atrium-health' in hospital_id:
-
-                get_atrium_data(driver, url, download_path)
                 
-            else:
-                
-                get_url_data(driver, url, is_download=True, download_path=download_path, wait=wait)
+            get_url_data(driver, url, is_download=True, download_path=raw_download_path, wait=wait)
 
-
-print(download_path)
 
 # wait for download to complete in selenium driver
 
-wait_for_downloads(download_path)
+wait_for_downloads(raw_download_path)
 
 # create a list of files names that end in .crdownload from download_path directory 
-not_complete = [os.path.join(download_path, filename) for filename in os.listdir(download_path) if filename.endswith(".crdownload")]
+not_complete = [os.path.join(raw_download_path, filename) for filename in os.listdir(url_download_path) if filename.endswith(".crdownload")]
 
 if not_complete:
     print("Downloads not complete")
@@ -175,14 +167,53 @@ if not_complete:
 
 print("Downloads complete and exported rest of urls")
 
-open('additional_exports.json', 'w').write(json.dumps(export_data))
+for hospital_id, urls in export_data.items():
+    for url in urls:
+
+        if 'atrium' in hospital_id:
+            get_atrium_data(url, raw_download_path, True)
+        
+        if 'wakemed' in hospital_id:
+            get_wakemed_data(driver,url)
 
 
-# write a function that takes in two arguments a json file and a filepath to convert a json file to a csv file with pandas 
+
+# create a list of all .csv and .json files in the raw_download_path
+
+convert_files =  [f for f in os.listdir(raw_download_path) if f.endswith('.xlsx') or f.endswith('.json')]
+
+# convert json and xlsx files to csv and download_path directory, convert to csv and then delete json file
+
+for file in convert_files:
+
+    if '.json' in file:
+
+        file_in_path = os.path.join(raw_download_path, file)
+
+        file_out_path = os.path.join(raw_download_path, file.replace('.json', '') + '.csv')
+
+        if 'northern-regional' in file:
+            get_northern_data(file_in_path, file_out_path)
+
+            
+
+    if '.xlsx' in file:
+
+        print(file)
+
+        file_in_path = os.path.join(raw_download_path, file)
+
+        file_out_path = os.path.join(raw_download_path, file.replace('.xlsx', '') + '.csv')
+
+        xlsx_to_csv(file_in_path, file_out_path)
 
 
+# find duplicates in duplicates list 
 
+duplicates = list_duplicates([f.replace('.json', '').replace('.csv', '').replace('.xlsx', '') for f in os.listdir(raw_download_path)])
 
+# remove duplicates
+for file in duplicates:
+    os.remove(os.path.join(raw_download_path, file + '.xlsx'))
 
-
-
+open(os.path.join(url_download_path, 'additional_exports.json'), 'w').write(json.dumps(export_data))
