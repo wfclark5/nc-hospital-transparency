@@ -33,9 +33,9 @@ def xlsx_to_csv(file_in, file_out):
 
 # function to convert json to csv
 
-def json_to_csv(json, filepath, lines, encoding='utf-8'):
+def json_to_csv(json, filepath, lines):
     
-    df = pd.read_json(json, lines=lines, encoding=encoding)
+    df = pd.read_json(json, lines=lines)
 
     df.to_csv(filepath, index=False)
 
@@ -121,9 +121,10 @@ def get_url_data(driver, url, is_download=False, download_path=None, wait=False)
 
         if wait == True:
             driver.get(url)
-            sleep(15)
+            sleep(90)
         else:
             driver.get(url)
+            sleep(60)
 
     if is_download:
         
@@ -236,23 +237,35 @@ def get_unc_data(driver, url):
     return driver
 
 
-def wait_for_downloads(download_path):
+def download_wait(directory, timeout, nfiles=None):
+    """
+    Wait for downloads to finish with a specified timeout.
 
-    """Wait for downloads to complete"""
+    Args
+    ----
+    directory : str
+        The path to the folder where the files will be downloaded.
+    timeout : int
+        How many seconds to wait until timing out.
+    nfiles : int, defaults to None
+        If provided, also wait for the expected number of files.
 
-    print("Waiting for downloads..", end="")
+    """
 
-    
-    timeout = 600   # [seconds]
+    print("Waiting for downloads to finish")
 
-    timeout_start = time()
+    seconds = 0
+    dl_wait = True
+    while dl_wait and seconds < timeout:
+        sleep(1)
+        dl_wait = False
+        files = os.listdir(directory)
+        if nfiles and len(files) != nfiles:
+            dl_wait = True
 
-    # while runtime is greater than 10 minutes then exit
-    
-    while any([filename.endswith(".crdownload") for filename in os.listdir(download_path)]):
-        if time() > timeout_start + timeout:
-            sleep(1)
-            print("..", end="")
-            break
+        for fname in files:
+            if fname.endswith('.crdownload'):
+                dl_wait = True
 
-    print("done!")
+        seconds += 1
+    return seconds
