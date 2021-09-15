@@ -215,11 +215,11 @@ for file in convert_files:
 
 duplicates = list_duplicates([f.replace('.json', '').replace('.csv', '').replace('.xlsx', '') for f in os.listdir(raw_download_path)])
 
+convert_files =  [f for f in os.listdir(raw_download_path) if f.endswith('.xlsx') or f.endswith('.json')]
+
+
 # remove duplicates
-for file in duplicates:
-    if '.json' in file:
-        os.remove(os.path.join(raw_download_path, file + '.json'))
-    if '.xlsx' in file:
-        os.remove(os.path.join(raw_download_path, file + '.xlsx'))
+for file in convert_files:
+    os.remove(os.path.join(raw_download_path, file))
 
 open(os.path.join(url_download_path, 'additional_exports.json'), 'w').write(json.dumps(export_data))
