@@ -48,6 +48,16 @@ def list_duplicates(seq):
     # # turn the set into a list (as requested)
     return list(seen_twice)
 
+def iterate_urls(url_list):
+
+    for index, url in enumerate(url_list):
+
+        print(f'{index}: {url}')
+
+    return url_list
+
+
+
 def create_driver(download_path, driver_path):
 
     """
@@ -107,28 +117,19 @@ def create_driver(download_path, driver_path):
     return driver
 
 
-def get_url_data(driver, url, is_download=False, download_path=None, wait=False):
+def get_url_data(driver, url, is_download=False, wait=False):
 
     """Use driver to get page source or download data"""
 
     # if is_download is true, get page or download data
-
-    def _download_file(driver, url, download_path, wait):
-    
-        """Download file from url"""
-
-        # download file and wait for download to complete
+    if is_download:
 
         if wait == True:
             driver.get(url)
-            sleep(90)
+            sleep(10)
         else:
             driver.get(url)
             sleep(60)
-
-    if is_download:
-        
-        _download_file(driver, url, download_path, wait)
         
     else:
         try:
