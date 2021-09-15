@@ -152,10 +152,9 @@ for hospital_id, url_list in hospital_data_urls.items():
                 
             get_url_data(driver, url, is_download=True, download_path=raw_download_path, wait=wait)
 
-
 # wait for download to complete in selenium driver
 
-wait_for_downloads(raw_download_path)
+download_wait(raw_download_path, 600)
 
 # create a list of files names that end in .crdownload from download_path directory 
 not_complete = [os.path.join(raw_download_path, filename) for filename in os.listdir(url_download_path) if filename.endswith(".crdownload")]
@@ -165,11 +164,15 @@ if not_complete:
     print(not_complete)
 
 
+
+driver = create_driver(raw_download_path, driver_path)
+
 print("Downloads complete and exported rest of urls")
 
 for hospital_id, urls in export_data.items():
+    print(hospital_id)
     for url in urls:
-
+        print(url)
         if 'atrium' in hospital_id:
             get_atrium_data(url, raw_download_path, True)
         
@@ -214,6 +217,9 @@ duplicates = list_duplicates([f.replace('.json', '').replace('.csv', '').replace
 
 # remove duplicates
 for file in duplicates:
-    os.remove(os.path.join(raw_download_path, file + '.xlsx'))
+    if '.json' in file:
+        os.remove(os.path.join(raw_download_path, file + '.json'))
+    if '.xlsx' in file:
+        os.remove(os.path.join(raw_download_path, file + '.xlsx'))
 
 open(os.path.join(url_download_path, 'additional_exports.json'), 'w').write(json.dumps(export_data))
