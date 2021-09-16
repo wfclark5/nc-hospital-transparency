@@ -20,16 +20,11 @@ import json
 from urllib.parse import urlsplit
 import urllib3
 from glob import glob 
-
-# function to convert xlsx to csv
-
-def xlsx_to_csv(file_in, file_out):
-
-    """Convert xlsx to csv"""
-
-    df = pd.read_excel(file_in)
-
-    df.to_csv(file_out)
+import wget 
+import requests
+from pathlib import Path
+import io
+import boto3
 
 # function to convert json to csv
 
@@ -41,6 +36,9 @@ def json_to_csv(json, filepath, lines):
 
 
 def list_duplicates(seq):
+
+    """List all of the duplicate file names in the download path d"""
+
     seen = set()
     seen_add = seen.add
     # adds all elements it doesn't know yet to seen and all other to seen_twice
@@ -48,15 +46,58 @@ def list_duplicates(seq):
     # # turn the set into a list (as requested)
     return list(seen_twice)
 
-def iterate_urls(url_list):
 
-    for index, url in enumerate(url_list):
-
-        print(f'{index}: {url}')
-
-    return url_list
+# a function to write a get from urllib requests.context to an S3 bucket
 
 
+def write_to_s3(bucket_name, filepath, response):
+
+    """
+    Write file to S3 bucket
+
+    Args
+    ----
+    filepath : str
+        The path to the file to be uploaded.
+    bucket_name : str
+        The name of the S3 bucket.
+    s3_key : str
+        The key to be used for the file in the S3 bucket.
+
+    """
+
+    # create a session and connect to S3
+
+    session = boto3.Session(
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
+    )
+
+    s3 = session.resource('s3')
+
+    # open file and upload to S3
+
+    s3.Bucket(bucket_name).put_object(Key=filepath, Body=response.content)
+
+    # remove the file from the local directory
+
+    # os.remove(filepath)
+
+
+def create_directory(directory):
+
+    """
+    Create a directory if it doesn't exist.
+
+    Args
+    ----
+    directory : str
+        The path to the directory.
+
+    """
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 def create_driver(download_path, driver_path):
 
@@ -117,9 +158,14 @@ def create_driver(download_path, driver_path):
     return driver
 
 
-def get_url_data(driver, url, is_download=False, wait=False):
+def get_url_data(url, driver=None, is_download=False, is_request=False, wait=False):
 
     """Use driver to get page source or download data"""
+
+    # create headers for user agent for requests 
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
 
     # if is_download is true, get page or download data
     if is_download:
@@ -129,7 +175,12 @@ def get_url_data(driver, url, is_download=False, wait=False):
             sleep(10)
         else:
             driver.get(url)
-            sleep(60)
+    
+    if is_request:
+
+        response = requests.get(url, headers=headers)
+        return response
+
         
     else:
         try:
@@ -140,102 +191,6 @@ def get_url_data(driver, url, is_download=False, wait=False):
 
     return driver
 
-
-def get_wakemed_data(driver, url):
-
-    """Get wakemed data from url"""
-
-    driver.get(url)
-
-    xpath = '/html/body/app-root/app-allservices/div[1]/div/div[3]/div/app-paginator/div[2]/div/div/button'
-
-    driver.execute_script("arguments[0].click();", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, xpath))))
-
-    driver.switch_to.alert.accept()
-
-    sleep(20)
-
-
-def get_atrium_data(url, download_path, lines):
-
-    """Get atrium data from url"""
-    
-    url_split = urlsplit(url)
-
-    url_path = url_split.path
-
-    url_path_split = url_path.split('/')
-
-    url_path_split = url_path_split[1:]
-
-    filename = url_path_split[1].replace('.json', '')
-
-    filepath = os.path.join(download_path, f"{filename}.csv")
-
-    http = urllib3.PoolManager()
-    
-    r = http.request('GET', url)
-
-    json_to_csv(r.data, filepath, lines)
-
-
-def get_northern_data(file_in, file_out):
-
-    df = pd.read_json(file_in, lines=True)
-
-    df_all = df.drop(columns=['PACKAGE_TYPE', 'PERCENT_OCCURRENCE_WITHIN_PRIMARY_CODE','SUPPORTING_SERVICE_CODE' ,'SUPPORTING_SERVICE_CODE_DESCRIPTION'])
-
-    for column in df_all:
-        if df_all[column].dtype == 'float64':
-            df_all[column]=pd.to_numeric(df_all[column], downcast='float')
-        if df_all[column].dtype == 'int64':
-            df_all[column]=pd.to_numeric(df_all[column], downcast='integer')
-
-    df.to_csv(file_out, index=False)
-
-def get_unc_data(driver, url):
-
-    """Create drivers to bypass captcha for UNC data"""
-
-    def _wait_between(a,b):
-        rand=uniform(a, b) 
-        sleep(rand)
-
-
-    try:
-        driver.get(url)
-    except TimeoutException:
-        print("Loading took too much time!")
-    
-    driver.find_element_by_xpath('/html/body/div[1]/div/div/div[2]/div/div[1]/div[1]/div[2]/div/a[2]').click()
-
-    sleep(10)
-
-    mainWin = driver.current_window_handle  
-
-    # move the driver to the first iFrame 
-    driver.switch_to_frame(driver.find_elements_by_tag_name("iframe")[0])
-
-    # *************  locate CheckBox  **************
-    CheckBox = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID ,"recaptcha-anchor"))
-            ) 
-
-    # *************  click CheckBox  ***************
-    _wait_between(0.5, 0.7)  
-    
-    # making click on captcha CheckBox 
-    CheckBox.click()
-
-    # switch back to main window
-
-    driver.switch_to.window(mainWin)
-
-    driver.find_element_by_xpath('/html/body/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div/div/div[2]/div/div/div/div/fieldset/div/div/div/div[4]/div/div/div/div/div/span/input').click()
-
-    driver.find_element_by_xpath('/html/body/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div/div/div[2]/div/div/div/div/fieldset/div/div/div/a').click()
-
-    return driver
 
 
 def download_wait(directory, timeout, nfiles=None):
@@ -270,3 +225,11 @@ def download_wait(directory, timeout, nfiles=None):
 
         seconds += 1
     return seconds
+
+def excel_to_csv(response, filename):
+
+    """Convert excel file to csv file"""
+
+    df = pd.read_excel(response)
+
+    df.to_csv(filename.replace('.xlsx', '.csv'))
