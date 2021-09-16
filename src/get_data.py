@@ -1,5 +1,9 @@
 from toolbox.scrapers import *
 
+hospital_urls = os.path.join(url_download_path, 'hospital_data_urls.json')
+
+urls_json = json.load(open(hospital_urls))
+
 
 # get_unc('university-of-north-carolina-hospital')
 

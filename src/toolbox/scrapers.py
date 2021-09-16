@@ -11,9 +11,6 @@ data_urls_path = os.path.join(url_download_path, 'hospital_data_urls.json')
 
 driver_path = os.path.join(abspath, 'drivers', 'chromedriver.exe')
 
-hospital_urls = os.path.join(url_download_path, 'hospital_data_urls.json')
-
-urls_json = json.load(open(hospital_urls))
 
 
 def get_unc(hospital_id):
