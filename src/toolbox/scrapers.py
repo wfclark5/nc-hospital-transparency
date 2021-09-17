@@ -1,19 +1,15 @@
-from utils import *
+from toolbox.utils import *
 
 
-abspath = os.path.normpath(os.path.dirname(os.path.dirname(__file__)))
-
-raw_download_path = os.path.normpath(os.path.join(abspath, 'data', 'raw'))
-
-url_download_path = os.path.normpath(os.path.join(abspath, 'data', 'urls'))
-
-data_urls_path = os.path.join(url_download_path, 'hospital_data_urls.json')
+abspath = os.path.normpath(os.path.dirname(os.path.dirname('..')))
 
 driver_path = os.path.join(abspath, 'drivers', 'chromedriver.exe')
 
+raw_download_path = os.path.normpath(os.path.join(abspath, 'data', 'raw'))
 
 
-def get_unc(hospital_id):
+
+def get_unc(hospital_id: str, hospital_urls: dict) -> None:
 
     """Create drivers to bypass captcha for UNC data"""
 
@@ -65,10 +61,9 @@ def get_unc(hospital_id):
 
         driver.find_element_by_xpath('/html/body/div[1]/div/div/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div/div/div/div[2]/div/div/div/div/fieldset/div/div/div/a').click()
 
-    return driver
 
 
-def get_duke(hospital_id):
+def get_duke(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Duke data and download the csv files"""
 
@@ -96,7 +91,7 @@ def get_duke(hospital_id):
         with open(os.path.join(download_path, filename), 'wb') as f:
             f.write(response.content)
 
-def get_north_carolina_baptist(hospital_id):
+def get_north_carolina_baptist(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Wake-Forest Baptist data and download the CSV file"""
 
@@ -117,7 +112,7 @@ def get_north_carolina_baptist(hospital_id):
             f.write(response.content)
         
 
-def get_app(hospital_id):
+def get_app(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Applachain Regional Data and download only the CSV data"""
 
@@ -143,7 +138,7 @@ def get_app(hospital_id):
             continue
 
 
-def get_catawba(hospital_id):
+def get_catawba(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Catawba Valley Regional data and download the CSV file"""
 
@@ -165,7 +160,7 @@ def get_catawba(hospital_id):
             continue
 
 
-def get_cateret(hospital_id):
+def get_cateret(hospital_id: str, hospital_urls: dict) -> None:
     
     """Get Cateret Health data and download only the CSV file"""
 
@@ -187,7 +182,7 @@ def get_cateret(hospital_id):
             excel_to_csv(response.content, os.path.join(download_path, filename))
 
 
-def get_cone(hospital_id):
+def get_cone(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Cone Health data and download only the CSV file"""
 
@@ -209,7 +204,7 @@ def get_cone(hospital_id):
         else:
             continue
 
-def get_first(hospital_id):
+def get_first(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get First Health data and download only the CSV file"""
 
@@ -253,7 +248,7 @@ def get_first(hospital_id):
     # df.pivot(index='codeType', columns='description', values=values).to_csv(os.path.join(download_path, 'pivot.csv'))
 
         
-def get_iredell(hospital_id):
+def get_iredell(hospital_id: str, hospital_urls: dict) -> None:
 
 
     url_list = hospital_urls[hospital_id]
@@ -274,7 +269,7 @@ def get_iredell(hospital_id):
             f.write(response.content)
     
 
-def get_mission(hospital_id):
+def get_mission(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Mission Health data and download only the CSV file"""
 
@@ -294,7 +289,7 @@ def get_mission(hospital_id):
         with open(os.path.join(download_path, filename), 'wb') as f:
             f.write(response.content)
 
-def get_nhrmc(hospital_id):
+def get_nhrmc(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get New Hanover Regional Medical Center data and download only the CSV file"""
 
@@ -314,7 +309,7 @@ def get_nhrmc(hospital_id):
         # write reponse to csv file from excel
         excel_to_csv(response.content, os.path.join(download_path, filename))
 
-def get_northern(hospital_id):
+def get_northern(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Northern Regional data and download only the CSV file"""
 
@@ -347,7 +342,7 @@ def get_northern(hospital_id):
         # write to csv
         df.to_csv(os.path.join(download_path, filename), index=False)
 
-def get_novant(hospital_id):
+def get_novant(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Novant Health data and download only the CSV file"""
 
@@ -366,7 +361,7 @@ def get_novant(hospital_id):
         with open(os.path.join(download_path, filename), 'wb') as f:
             f.write(response.content)
 
-def get_vidant(hospital_id):
+def get_vidant(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Vidant Health data and download only the CSV file"""
 
@@ -388,7 +383,7 @@ def get_vidant(hospital_id):
         excel_to_csv(response.content, os.path.join(download_path, filename))
 
 
-def get_atrium(hospital_id):
+def get_atrium(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get Atrium Health data from url"""
 
@@ -417,7 +412,7 @@ def get_atrium(hospital_id):
 
 
 
-def get_wakemed(hospital_id):
+def get_wakemed(hospital_id: str, hospital_urls: dict) -> None:
 
     """Get wakemed data from url"""
 
