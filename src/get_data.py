@@ -3,55 +3,54 @@ import os
 from prefect import task, Flow
 
 
+abspath = os.path.dirname(os.path.normpath(os.path.abspath(os.path.dirname(__file__))))
+
+sys.path.append(abspath)
+
 from toolbox.scrapers import *
 
+print(abspath)
+
+driver_path = os.path.join(abspath, 'drivers', 'chromedriver.exe')
+
+raw_download_path = os.path.normpath(os.path.join(abspath, 'data', 'raw'))
 
 
-
-@task
 hospital_urls = get_source_urls(driver_path, raw_download_path) 
 
 # get_unc('university-of-north-carolina-hospital')
 
-# define Prefect flow
-with Flow("hospital-price-transparency") as flow:
-    hospital_urls = get_source_urls()
-    # houston_realtor_data = transform(realtor_data)
-    # load_to_database = load(houston_realtor_data)
 
-flow.register(project_name="hospital-price-transparency")
+# df_cdm, df_drg = get_duke('duke-university-hospital', hospital_urls, raw_download_path)
 
-flow.run()
-# get_duke('duke-university-hospital', hospital_urls)
+# df_ncb = get_north_carolina_baptist('north-carolina-baptist-hospital', hospital_urls, raw_download_path)
 
-# get_north_carolina_baptist('north-carolina-baptist-hospital', hospital_urls)
+# df_cdm_app, df_drg_app, df_shop_app = get_app('app-regional-health-system', hospital_urls, raw_download_path)
 
-# get_app('app-regional-health-system', hospital_urls)
+# df_catawba = get_catawba('catawba-valley-medical-center', hospital_urls,  raw_download_path)
 
-# get_catawba('catawba-valley-medical-center', hospital_urls)
+# df_comp_cateret, df_desc_cateret = get_cateret('cateret-health-care', hospital_urls,  raw_download_path)
 
-# get_cateret('cateret-health-care', hospital_urls)
+# df_cone = get_cone('cone-health', hospital_urls, raw_download_path)
 
-# get_cone('cone-health', hospital_urls)
+# df_first_moore =  get_first('first-health-moore', hospital_urls, raw_download_path)
 
-# get_first('first-health-moore', hospital_urls)
+# df_first_montgomery =  get_first('first-health-montgomery', hospital_urls, raw_download_path)
 
-# get_first('first-health-montgomery', hospital_urls)
+# df_cdm_iredell, df_drg_iredell, df_drg_internet =  get_iredell('iredell-health', hospital_urls, raw_download_path)
 
-# get_iredell('iredell-health', hospital_urls)
+# df_mission = get_mission('mission-health', hospital_urls, raw_download_path)
 
-# get_mission('mission-health', hospital_urls)
+# df_nhrmc_op, df_nhrmc_ip = get_nhrmc('nhrmc-health', hospital_urls, raw_download_path)
 
-# get_nhrmc('nhrmc-health', hospital_urls)
+df_northern = get_northern('northern-regional', hospital_urls, raw_download_path)
 
-# get_northern('northern-regional', hospital_urls)
+# df_novant = get_novant('novant-health', hospital_urls, raw_download_path)
 
-# get_novant('novant-health', hospital_urls)
+# df_wakemed_raleigh = get_wakemed('wakemed-raleigh', hospital_urls, raw_download_path, driver_path)
 
-# get_wakemed('wakemed-raleigh', hospital_urls)
+# get_wakemed('wakemed-cary', hospital_urls, raw_download_path, driver_path)
 
-# get_wakemed('wakemed-cary', hospital_urls)
+df_vidant = get_vidant('vidant-health', hospital_urls, raw_download_path)
 
-# get_vidant('vidant-health', hospital_urls)
-
-# get_atrium('atrium-health', hospital_urls)
+# get_atrium('atrium-health', hospital_urls, raw_download_path)

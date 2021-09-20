@@ -135,35 +135,42 @@ def get_unc(driver_path: str, hospital_id: str, hospital_urls: dict, raw_downloa
 
 
 
-def get_duke(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
 
-    """Get Duke data and download the csv files"""
+def get_duke(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
+    """Get Duke data, download the csv files, and get dataframes"""
+
+
+    # get urls from hospital_urls using hospital_id parameter
     url_list = hospital_urls[hospital_id]
-    
+
     download_path = os.path.join(raw_download_path, hospital_id)
-    
+
     create_directory(download_path)
 
-    df_cdm = pd.DataFrame()
+    cdm_lst, drg_lst = [], []
 
-    df_drg = pd.DataFrame()
 
     for url in url_list:
-        print(url)
         # infer filename from url 
         filename = url.split('/')[-1]
         # download the file
-        print(filename)
-        response = get_url_data(url, is_request=True)
-        # write reponse to csv file 
-        df = pd.read_csv(io.StringIO(response.content.decode('utf-8')), error_bad_lines=False)
-        # df = pd.read_csv(response.content)
-        
-        with open(os.path.join(download_path, filename), 'wb') as f:
-            f.write(response.content)
 
-def get_north_carolina_baptist(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+        response = get_url_data(url, is_request=True)
+
+        # write reponse to csv file 
+        df = pd.read_csv(io.StringIO(response.data.decode('ANSI')), engine='python')
+        
+        df.to_csv(os.path.join(download_path, filename), index=False)
+
+        if 'cdm' in filename:
+            cdm_lst.append(df)
+        if 'drg' in filename:
+            drg_lst.append(df)
+        
+    return pd.concat(cdm_lst), pd.concat(drg_lst)
+
+def get_north_carolina_baptist(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Wake-Forest Baptist data and download the CSV file"""
 
@@ -173,6 +180,8 @@ def get_north_carolina_baptist(hospital_id: str, hospital_urls: dict, raw_downlo
     
     create_directory(download_path)
 
+    df_list = []
+
     for url in url_list:
         # infer filename from url 
         filename = url.split('/')[-1]
@@ -180,37 +189,68 @@ def get_north_carolina_baptist(hospital_id: str, hospital_urls: dict, raw_downlo
         print(filename)
         response = get_url_data(url, is_request=True)
         # write reponse to csv file 
-        with open(os.path.join(download_path, filename.replace('?la=en', '')), 'wb') as f:
-            f.write(response.content)
+        df = pd.read_csv(io.BytesIO(response.data), engine='python')
+        
+        df.to_csv(os.path.join(download_path, filename.replace('?la=en', '')), index=False)
+        # append to list
+        df_list.append(df)
+    
+    return pd.concat(df_list)
         
 
-def get_app(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+def get_app(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Applachain Regional Data and download only the CSV data"""
 
     url_list = hospital_urls[hospital_id]
 
     download_path = os.path.join(raw_download_path, hospital_id)
-    
+
     create_directory(download_path)
+
+    cdm_lst, drg_lst, shop_df = [], [], []
+
 
     for url in url_list:
         # infer filename from url 
         filename = url.split('/')[-1]
         # download the file
         response = get_url_data(url, is_request=True)
+        
         filename = response.headers['Content-Disposition'].strip('"').replace('inline; filename="', '').replace('"', '')
+        
+        headers = ['CMS Required DRG/CPT/HCPCS', 'DRG/CPT/ HCPCS','Description','CMH FY21 Chg (estimate)','Self-Pay (estimate)', 'Medicare', 'Medicaid', 'Aetna','BCBS',	'BCBS State', 'Cigna', 'Medcost','UHC']
 
         # if filename ends with .csv write it out
 
         if filename.endswith('.csv'):
-            with open(os.path.join(download_path, filename), 'wb') as f:
-                f.write(response.content)
+            print(type(filename))
+
+            if 'CDM' in filename:
+                print('CDM')
+                df = pd.read_csv(io.StringIO(response.data.decode('utf-8')), skiprows=5, engine='python')
+                cdm_lst.append(df)
+                df.to_csv(os.path.join(download_path, filename), index=False)
+
+            if 'DRG' in filename:
+                df = pd.read_csv(io.StringIO(response.data.decode('utf-8')), skiprows=5, engine='python')
+                drg_lst.append(df)
+                df.to_csv(os.path.join(download_path, filename), index=False)
+
+            if 'Shop' in filename: 
+                df = pd.read_csv(io.StringIO(response.data.decode('utf-8')), skiprows=5, header = 0, names=headers, engine='python')
+                shop_df.append(df)
+                df.to_csv(os.path.join(download_path, filename), index=False)
+        
         else:
             continue
 
 
-def get_catawba(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+            
+    return pd.concat(cdm_lst), pd.concat(drg_lst), pd.concat(shop_df)
+
+
+def get_catawba(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Catawba Valley Regional data and download the CSV file"""
 
@@ -220,19 +260,26 @@ def get_catawba(hospital_id: str, hospital_urls: dict, raw_download_path: str) -
     
     create_directory(download_path)
 
+    df_list = []
+
     for url in url_list:
         # infer filename from url 
         filename = url.split('/')[-1]
         # download the file
         response = get_url_data(url, is_request=True)
         if filename.endswith('.csv'):
-            with open(os.path.join(download_path, filename), 'wb') as f:
-                f.write(response.content)
-        else:
-            continue
+            print(filename)
+            if 'StandardCharges' in filename:
+                df = pd.read_csv(io.StringIO(response.data.decode('utf-8')), engine='python')
+                df.to_csv(os.path.join(download_path, filename), index=False)
+                df_list.append(df)
+            else: 
+                continue
+
+    return pd.concat(df_list)
 
 
-def get_cateret(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+def get_cateret(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
     
     """Get Cateret Health data and download only the CSV file"""
 
@@ -242,19 +289,32 @@ def get_cateret(hospital_id: str, hospital_urls: dict, raw_download_path: str) -
     
     create_directory(download_path)
 
+    comp_list = []
+
+    desc_list = []
+
     for url in url_list:
         # infer filename from url 
         filename = url.split('/')[-1]
+        print(filename)
         # download the file
         response = get_url_data(url, is_request=True)
-        if filename.endswith('.csv'):
-            with open(os.path.join(download_path, filename), 'wb') as f:
-                f.write(response.content)
-        else:
-            excel_to_csv(response.content, os.path.join(download_path, filename))
+        # if filename.endswith('.csv'):
+        #     print(filename)
+        if 'Comparison' in filename:
+            df = pd.read_excel(io.BytesIO(response.data), skiprows=5)
+            df.to_csv(os.path.join(download_path, filename.replace('.xlsx', '.csv')), index=False)
+            comp_list.append(df)
+        if 'Description' in filename:                 
+            df = pd.read_csv(io.BytesIO(response.data), engine='python')
+            df.to_csv(os.path.join(download_path, filename), index=False)
+            desc_list.append(df)
+        else: 
+            continue
 
+    return pd.concat(comp_list), pd.concat(desc_list)
 
-def get_cone(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+def get_cone(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Cone Health data and download only the CSV file"""
 
@@ -264,6 +324,8 @@ def get_cone(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> N
     
     create_directory(download_path)
 
+    df_list = []
+
     for url in url_list:
         # infer filename from url 
         filename = url.split('/')[-1]
@@ -271,12 +333,15 @@ def get_cone(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> N
         response = get_url_data(url, is_request=True)
         print(filename)
         if filename.endswith('.csv'):
-            with open(os.path.join(download_path, filename), 'wb') as f:
-                f.write(response.content)
+            df = pd.read_csv(io.BytesIO(response.data), skiprows=3, engine='python')
+            df.to_csv(os.path.join(download_path, filename), index=False)
+            df_list.append(df)
         else:
             continue
+    
+    return pd.concat(df_list)
 
-def get_first(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+def get_first(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get First Health data and download only the CSV file"""
 
@@ -299,6 +364,8 @@ def get_first(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> 
     download_path = os.path.join(raw_download_path, hospital_id)
     
     create_directory(download_path)
+
+    df_list = []
     
     for url in url_list:
         # infer filename from url 
@@ -310,14 +377,16 @@ def get_first(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> 
         json_data =  json.loads(response.content)['response']
         df = pd.json_normalize(json_data, record_path='payors', meta=meta, errors='ignore', record_prefix='payor.')
         filepath = os.path.join(download_path, f'{hospital_id}_standardcharges.csv')
+        df_list.append(df)
         # if file does not exist write header 
         if not os.path.isfile(filepath):
             df.to_csv(filepath, header=headers, index=False)
         else: # else it exists so append without writing the header
             df.to_csv(filepath, mode='a', header=False, index=False)
-    # pivot pandas dataframe on codeeType and description
-    # df = pd.read_csv(filepath)
-    # df.pivot(index='codeType', columns='description', values=values).to_csv(os.path.join(download_path, 'pivot.csv'))
+
+    
+    return pd.concat(df_list)
+        
 
         
 def get_iredell(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
@@ -328,6 +397,8 @@ def get_iredell(hospital_id: str, hospital_urls: dict, raw_download_path: str) -
     download_path = os.path.join(raw_download_path, hospital_id)
     
     create_directory(download_path)
+
+    cdm_list, drg_inter_list, drg_list = []
     
     """Get Iredell Health data and download only the CSV file"""
     for url in url_list:
@@ -336,12 +407,26 @@ def get_iredell(hospital_id: str, hospital_urls: dict, raw_download_path: str) -
         # download the file
         print(filename)
         response = get_url_data(url, is_request=True)
-        # write reponse to csv file 
-        with open(os.path.join(download_path, filename.replace('?la=en', '')), 'wb') as f:
-            f.write(response.content)
-    
 
-def get_mission(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+        if 'cdm' in filename:
+            df = pd.read_csv(io.BytesIO(response.data), engine='python')
+            df.to_csv(os.path.join(download_path, filename), index=False)
+            cdm_list.append(df)
+        
+        if 'drg_inter' in filename:
+            df = pd.read_csv(io.BytesIO(response.data), engine='python')
+            df.to_csv(os.path.join(download_path, filename), index=False)
+            drg_inter_list.append(df)
+        
+        else:
+            df = pd.read_csv(io.BytesIO(response.data), skiprows = 3, engine='python')
+            df.to_csv(os.path.join(download_path, filename), index=False)
+            drg_list.append(df)
+    
+    return pd.concat(cdm_list), pd.concat(drg_inter_list), pd.concat(drg_list)
+
+
+def get_mission(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Mission Health data and download only the CSV file"""
 
@@ -351,17 +436,24 @@ def get_mission(hospital_id: str, hospital_urls: dict, raw_download_path: str) -
     
     create_directory(download_path)
     
+    df_list = []
+
     for url in url_list:
         # infer filename from url 
         filename = url.split('/')[-1]
         # download the file
-        print(filename)
         response = get_url_data(url, is_request=True)
         # write reponse to csv file 
-        with open(os.path.join(download_path, filename), 'wb') as f:
-            f.write(response.content)
 
-def get_nhrmc(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+        df = pd.read_csv(io.BytesIO(response.data), skiprows = 1, engine='python')
+        
+        df.to_csv(os.path.join(download_path, filename), index=False)
+
+        df_list.append(df)
+    
+    return pd.concat(df_list)
+
+def get_nhrmc(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get New Hanover Regional Medical Center data and download only the CSV file"""
 
@@ -371,17 +463,64 @@ def get_nhrmc(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> 
     
     create_directory(download_path)
 
+    ip_df_list = []
+
+    op_df_list = []
+
     for url in url_list:
          
         # infer filename from url 
         filename = url.split('/')[-1]
         # download the file
-        print(filename)
-        response = get_url_data(url, is_request=True)
-        # write reponse to csv file from excel
-        excel_to_csv(response.content, os.path.join(download_path, filename))
 
-def get_northern(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+        print(filename)
+
+        response = get_url_data(url, is_download_request=True)
+
+        # write reponse to csv file from excel
+
+        if 'new-hanover' in filename:
+
+            df_ip = pd.read_excel(response.content,  sheet_name=3, skiprows=5)
+
+            df_op = pd.read_excel(response.content, sheet_name=4, skiprows=5)
+
+            df_ip.to_csv(os.path.join(download_path, filename.replace('.xlsx', 'ip.csv')), index=False)
+    
+            df_op.to_csv(os.path.join(download_path, filename.replace('.xlsx', 'op.csv')), index=False)
+
+            df_ip['Hosp'] = 'New Hanover'
+
+            df_op['Hosp'] = 'New Hanover'
+            
+            ip_df_list.append(df_ip)
+
+            op_df_list.append(df_op)
+
+
+        if 'pender' in filename:
+
+            df_ip = pd.read_excel(response.content,  sheet_name=3, skiprows=4)
+
+            df_op = pd.read_excel(response.content, sheet_name=4, skiprows=5)
+
+            df_ip.to_csv(os.path.join(download_path, filename.replace('.xlsx', '_ip.csv')), index=False)
+    
+            df_op.to_csv(os.path.join(download_path, filename.replace('.xlsx', '_op.csv')), index=False)
+
+            df_ip['Hosp'] = 'Pender'
+
+            df_op['Hosp'] = 'Pender'
+
+            ip_df_list.append(df_ip)
+
+            op_df_list.append(df_op)
+
+    return pd.concat(ip_df_list), pd.concat(op_df_list)
+    
+
+
+def get_northern(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Northern Regional data and download only the CSV file"""
 
@@ -396,7 +535,7 @@ def get_northern(hospital_id: str, hospital_urls: dict, raw_download_path: str) 
         filename = url.split('/')[-1].replace('.json', '.csv')
 
         # download the file
-        response = get_url_data(url, is_request=True)
+        response = get_url_data(url, is_download_request=True)
 
         # create pandas dataframe from response
         df = pd.read_json(response.content, lines=True)
@@ -414,7 +553,9 @@ def get_northern(hospital_id: str, hospital_urls: dict, raw_download_path: str) 
         # write to csv
         df.to_csv(os.path.join(download_path, filename), index=False)
 
-def get_novant(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+    return df
+
+def get_novant(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Novant Health data and download only the CSV file"""
 
@@ -424,16 +565,24 @@ def get_novant(hospital_id: str, hospital_urls: dict, raw_download_path: str) ->
     
     create_directory(download_path)
 
+    df_list = []
+
     for url in url_list:
         # infer filename from url 
         filename = url.split('/')[-1]
         # download the file
         response = get_url_data(url, is_request=True)
         # write reponse to csv file 
-        with open(os.path.join(download_path, filename), 'wb') as f:
-            f.write(response.content)
+        df = pd.read_csv(io.BytesIO(response.data) , engine='python')
+        
+        df.to_csv(os.path.join(download_path, filename), index=False)
 
-def get_vidant(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+        df_list.append(df)
+        
+    return pd.concat(df_list)
+
+
+def get_vidant(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Vidant Health data and download only the CSV file"""
 
@@ -443,19 +592,30 @@ def get_vidant(hospital_id: str, hospital_urls: dict, raw_download_path: str) ->
     
     create_directory(download_path)
 
+    df_list = []
+
     for url in url_list:
          
         # infer filename from url 
         filename = url.split('/')[-1]
+        
         # download the file
         print(filename)
-        response = get_url_data(url, is_request=True)
+        
+        response = get_url_data(url, is_download_request=True)
+        
         # write reponse to csv file from excel
 
-        excel_to_csv(response.content, os.path.join(download_path, filename))
+        df = pd.read_excel(response.content, skiprows=3)
+
+        df.to_csv(os.path.join(download_path, filename.replace('.xlsx', '.csv')), index=False)
+
+        df_list.append(df)
+
+    return pd.concat(df_list)
 
 
-def get_atrium(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+def get_atrium(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Atrium Health data from url"""
 
@@ -465,6 +625,8 @@ def get_atrium(hospital_id: str, hospital_urls: dict, raw_download_path: str) ->
     
     create_directory(download_path)
 
+    df_list = []
+
     for url in url_list:
 
         filename = url.split('/')[-1].replace('.json', '.csv')
@@ -473,18 +635,19 @@ def get_atrium(hospital_id: str, hospital_urls: dict, raw_download_path: str) ->
 
         # download the file
 
-        http = urllib3.PoolManager()
-        
-        r = http.request('GET', url)
+        response = get_url_data(url, is_request=True)
 
         # create pandas dataframe from response
-        df = pd.read_json(r.data)
+
+        df = pd.read_json(response.data)
 
         df.to_csv(os.path.join(download_path, filename), index=False)
 
+        df_list.append(df)
+    
+    return pd.concat(df_list)
 
-
-def get_wakemed(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> None:
+def get_wakemed(hospital_id: str, hospital_urls: dict, raw_download_path: str, driver_path: str) -> pd.DataFrame:
 
     """Get wakemed data from url"""
 
@@ -522,3 +685,5 @@ def get_wakemed(hospital_id: str, hospital_urls: dict, raw_download_path: str) -
     df.to_csv(os.path.join(download_path, f'{hospital_id}_standardcharges.csv'), index=False)
 
     os.remove(json_file)
+
+    return df

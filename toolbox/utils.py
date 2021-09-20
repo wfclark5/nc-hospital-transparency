@@ -28,6 +28,7 @@ import boto3
 
 
 
+
 # function to convert json to csv
 
 def json_to_csv(json, filepath, lines):
@@ -160,7 +161,7 @@ def create_driver(download_path, driver_path):
     return driver
 
 
-def get_url_data(url, driver=None, is_download=False, is_request=False, wait=False):
+def get_url_data(url, driver=None, is_download=False, is_download_request=False, is_request=False, wait=False):
 
     """Use driver to get page source or download data"""
 
@@ -180,7 +181,16 @@ def get_url_data(url, driver=None, is_download=False, is_request=False, wait=Fal
     
     if is_request:
 
+        http = urllib3.PoolManager()
+
+        response = http.request('GET', url, retries = 100)
+    
+        return response
+    
+    if is_download_request:
+
         response = requests.get(url, headers=headers)
+
         return response
 
         
@@ -227,11 +237,3 @@ def download_wait(directory, timeout, nfiles=None):
 
         seconds += 1
     return seconds
-
-def excel_to_csv(response, filename):
-
-    """Convert excel file to csv file"""
-
-    df = pd.read_excel(response)
-
-    df.to_csv(filename.replace('.xlsx', '.csv'))
