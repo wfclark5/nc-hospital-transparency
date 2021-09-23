@@ -168,6 +168,7 @@ def get_duke(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> p
         
     return pd.concat(cdm_lst), pd.concat(drg_lst)
 
+
 def get_north_carolina_baptist(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
     """Get Wake-Forest Baptist data and download the CSV file"""
@@ -188,13 +189,55 @@ def get_north_carolina_baptist(hospital_id: str, hospital_urls: dict, raw_downlo
         # write reponse to csv file 
         df = pd.read_csv(io.BytesIO(response.data), engine='python')
 
+        df.to_csv(os.path.join(download_path, filename.replace('?la=en', '')), index=False)
+
+
         df['Filename'] = filename
 
-        df.to_csv(os.path.join(download_path, filename.replace('?la=en', '')), index=False)
+
+        print(filename)
+
+
+        # check to see if column name is in dataframe and if it is replace it 
+
+        
+        df.rename(columns={'Inpatient/Outpatient': 'Patient Type', 
+                                'CPT/HCPC Code': 'CPT', 
+                                'Revenue Code': 'Rev Code', 
+                                'DRG Code': 'DRG', 
+                                'NDC Code': 'NDC',
+                                'Description': 'Procedure Description',
+                                'Gross Charges': 'Gross Charge',
+                                'Min': 'Minimum Negotiated Charge',
+                                'Max': 'Maximum Negotiated Charge',
+                                'Aetna Coventry FirstHealth Wellpath': 'Aetna Managed Care',
+                                'Aetna\nCoventry FirstHealth Wellpath': 'Aetna Managed Care',
+                                'Humana Choicecare': 'Humana',
+                                'Blue Medicare': 'BCBS Medicare',
+                                'Uninsured Discount': 'Discounted Cash Price',
+                                'BCBS\n(PPO, State Health Plan, Federal Employees, Blue Select)': 'BCBS Managed Care',
+                                'BCBS\n(PPO, State Health, Federal Employees, Blue Select, Blue Value)': 'BCBS Managed Care',
+                                'BCBS\n(PPO, State Health, Federal Employees, Blue Select)': 'BCBS Managed Care', 
+                                'BCBS\\n(PPO, State Health, Federal Employees, Blue Select)': 'BCBS Managed Care',
+                                'BCBS\n(PPO, State Health, Federal Employee, Blue Select)': 'BCBS Managed Care',
+                                'BCBS\n(PPO,State Health, Federal Employees, Blue Select)': 'BCBS Managed Care'}, inplace=True)
+
+        if 'Wilkes-Regional' in filename:
+            df['Humana Choicecare'] = None
+
+
+        df=df[["Patient Type", "DRG", "Rev Code",  "CPT", 
+                "NDC",	"Procedure Description", "Gross Charge", "Discounted Cash Price", "Minimum Negotiated Charge", 
+                "Maximum Negotiated Charge",	"Aetna Managed Care" ,"Aetna Medicare",	"BCBS Managed Care", "Blue Medicare", "Cigna Managed Care" , 
+                "Humana"	,"Humana Medicare"	, "UHC Managed Care", "UHC Medicare", 'Medcost', "Filename"]]																								
+
+
+
         # append to list
         df_list.append(df)
     
     return pd.concat(df_list)
+        
         
 
 def get_app(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
