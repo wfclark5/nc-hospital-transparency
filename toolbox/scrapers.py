@@ -543,13 +543,22 @@ def get_nhrmc(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> 
     
             df_op.to_csv(os.path.join(download_path, filename.replace('.xlsx', 'op.csv')), index=False)
 
-            df_ip['Hosp'] = 'New Hanover'
+            df_ip.rename(columns = {'MS-DRG': 'MS-DRG/APC', 
+                                    'APC': 'MS-DRG/APC', 
+                                    'BCBS HMO PPO': 'BCBS', 
+                                    'Cigna PPO': 'Cigna', 
+                                    'UHC HMO': 'UHC'}, inplace=True)
 
-            df_op['Hosp'] = 'New Hanover'
-            
+            df_op.rename(columns = {'MS-DRG': 'MS-DRG/APC', 
+                                    'APC': 'MS-DRG/APC', 
+                                    'BCBS HMO PPO': 'BCBS', 
+                                    'Cigna PPO': 'Cigna', 
+                                    'UHC HMO': 'UHC'}, inplace=True)
+
             ip_df_list.append(df_ip)
 
             op_df_list.append(df_op)
+
 
 
         if 'pender' in filename:
@@ -566,15 +575,33 @@ def get_nhrmc(hospital_id: str, hospital_urls: dict, raw_download_path: str) -> 
     
             df_op.to_csv(os.path.join(download_path, filename.replace('.xlsx', '_op.csv')), index=False)
 
-            df_ip['Hosp'] = 'Pender'
+    
+            df_ip.rename(columns = {'MS-DRG': 'MS-DRG/APC', 
+                                    'APC': 'MS-DRG/APC', 
+                                    'DRG Average Charge': 'Average Charge', 
+                                    'APC Average Charge': 'Average Charge',  
+                                    'Aetna HMO/PPO': 'Aetna', 
+                                    'BCBS PPO/HMO': 'BCBS', 
+                                    'Cigna PPO/HMO': 'Cigna', 
+                                    'UHC HMO/PPO': 'UHC', 
+                                    'MedCost PPO': 'MedCost'}, inplace=True)
 
-            df_op['Hosp'] = 'Pender'
+            df_op.rename(columns ={'MS-DRG': 'MS-DRG/APC', 
+                                    'APC': 'MS-DRG/APC', 
+                                    'DRG Average Charge': 'Average Charge', 
+                                    'APC Average Charge': 'Average Charge',  
+                                    'Aetna HMO/PPO': 'Aetna', 
+                                    'BCBS PPO/HMO': 'BCBS', 
+                                    'Cigna PPO/HMO': 'Cigna', 
+                                    'UHC HMO/PPO': 'UHC', 
+                                    'MedCost PPO': 'MedCost'}, inplace=True)
 
             ip_df_list.append(df_ip)
 
             op_df_list.append(df_op)
 
     return pd.concat(ip_df_list), pd.concat(op_df_list)
+    
     
 
 
