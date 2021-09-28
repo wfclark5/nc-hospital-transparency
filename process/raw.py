@@ -193,7 +193,7 @@ def get_duke(hospital_urls: dict, raw_download_path: str, hospital_id='duke-univ
 	return pd.concat(df_list)
 
 
-def get_north_carolina_baptist(hospital_urls: dict, raw_download_path: str, hospital_id='north-carolina-baptist-hospital') -> pd.DataFrame:
+def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-carolina-baptist-hospital') -> pd.DataFrame:
 
 	"""Get Wake-Forest Baptist data and download the CSV file"""
 
@@ -229,8 +229,8 @@ def get_north_carolina_baptist(hospital_urls: dict, raw_download_path: str, hosp
 								'NDC Code': 'NDC',
 								'Description': 'Procedure Description',
 								'Gross Charges': 'Gross Charge',
-								'Min': 'Minimum Negotiated Charge',
-								'Max': 'Maximum Negotiated Charge',
+								'Min': 'De-identified Minimum',
+								'Max': 'De-identified Maximum',
 								'Aetna Coventry FirstHealth Wellpath': 'Aetna Managed Care',
 								'Aetna\nCoventry FirstHealth Wellpath': 'Aetna Managed Care',
 								'Humana Choicecare': 'Humana',
@@ -250,8 +250,8 @@ def get_north_carolina_baptist(hospital_urls: dict, raw_download_path: str, hosp
 			df['Medcost'] = None
 
 		df=df[["Patient Type", "DRG", "Rev Code",  "CPT", 
-				"NDC",	"Procedure Description", "Gross Charge", "Discounted Cash Price", "Minimum Negotiated Charge", 
-				"Maximum Negotiated Charge",	"Aetna Managed Care" ,"Aetna Medicare",	"BCBS Managed Care", "Blue Medicare", "Cigna Managed Care" , 
+				"NDC",	"Procedure Description", "Gross Charge", "Discounted Cash Price", "De-identified Minimum", 
+				"De-identified Maximum",	"Aetna Managed Care" ,"Aetna Medicare",	"BCBS Managed Care", "Blue Medicare", "Cigna Managed Care" , 
 				"Humana", "Humana Medicare"	, "UHC Managed Care", "UHC Medicare", 'Medcost', "Filename"]]																								
 
 		# append to list
@@ -408,12 +408,11 @@ def get_cone(hospital_urls: dict, raw_download_path: str, hospital_id='cone-heal
 	
 	return pd.concat(df_list)
 
-def get_first(hospital_urls: dict, raw_download_path: str, hospital_id=['first-health-moore', 'first-health-montgomery']) -> pd.DataFrame:
+def get_first(hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
 	"""Get First Health data and download only the CSV file"""
 
-
-	ids = hospital_id
+	ids = ['first-health-moore', 'first-health-montgomery']
 
 	meta = ['id' , 'hospital' , 'code' , 'description' , 'codeType' , 'cmsShoppable', 'cranewareShoppable' , 
 			'shoppable' , 'level' , 'grossCharge' , 'minAllowable' , 'maxAllowable' , 'avgAllowable' , 
@@ -460,9 +459,9 @@ def get_first(hospital_urls: dict, raw_download_path: str, hospital_id=['first-h
 			else:
 				df_mont_list.append(df)
 
-	
-	return pd.concat(df_moore_list), pd.concat(df_mont_list)
-		
+	dfs_list = df_moore_list + df_mont_list
+
+	return pd.concat(dfs_list)
 
 		
 def get_iredell(hospital_urls: dict, raw_download_path: str, hospital_id='iredell-health') -> pd.DataFrame:
@@ -761,9 +760,11 @@ def get_atrium(hospital_urls: dict, raw_download_path: str, hospital_id='atrium-
 
 		df = pd.read_json(response.data)
 
-		df['Filename'] = filename
+		df = df[df['Min /Max'] == 'MAX']
 
-		print(df.columns)
+		df.columns = df.columns.str.strip()
+
+		df['Filename'] = filename
 
 		df.to_csv(os.path.join(download_path, filename), index=False)
 
@@ -772,6 +773,8 @@ def get_atrium(hospital_urls: dict, raw_download_path: str, hospital_id='atrium-
 		
 	
 	return pd.concat(df_list)
+
+
 
 def get_wakemed(hospital_urls: dict, raw_download_path: str, driver_path: str, hospital_id='wakemed') -> pd.DataFrame:
 
@@ -799,28 +802,51 @@ def get_wakemed(hospital_urls: dict, raw_download_path: str, driver_path: str, h
 
 		driver.switch_to.alert.accept()
 
-	download_wait(directory=download_path, timeout=150, nfiles=1)
+		sleep(10)
 
-	json_file = os.path.join(download_path, [pos_json for pos_json in os.listdir(download_path)][0])
+	download_wait(directory=download_path, timeout=60, nfiles=1)
 
-	wakemed_json = open(json_file, 'r').read()
+	json_list = [pos_json for pos_json in os.listdir(download_path)]
 
-	wakemed_data = wakemed_json.replace('\x00', '')
+	filename = os.path.join(download_path, f'{hospital_id}-standard_charges.csv')
 
-	df = pd.read_json(wakemed_data)
+	if os.path.isfile(filename):
+		os.remove(filename)
 
-	filename = os.path.join(download_path, f'{hospital_id}_standardcharges.csv')
+	for file in json_list:
 
-	df['Filename'] = filename
+		if file.endswith('.json'):
 
+			json_file = os.path.join(download_path, file)
 
-	if not os.path.isfile(filename):
-		df.to_csv(filename, index=False)
-	else: # else it exists so append without writing the header
-		df.to_csv(filename, mode='a', header=False, index=False)
+			wakemed_json = open(json_file, 'r').read()
 
-	os.remove(json_file)
+			wakemed_data = wakemed_json.replace('\x00', '')
 
-	dfs_list.append(df)
+			df = pd.read_json(wakemed_data)
+
+			df['Filename'] = hospital_id
+
+			if not os.path.isfile(filename):
+				df.to_csv(filename, index=False)
+			else: # else it exists so append without writing the header
+				df.to_csv(filename, mode='a', header=False, index=False)
+
+			os.remove(json_file)
+
+			df.rename(columns={'Avg_Gross_Charge': 'Gross Charge', 
+								'Gross_Charge': 'Gross Charge',
+								'description': 'Procedure Description',
+								'iobSelection': 'Patient Type',
+								'Cash_Discount': 'Self Pay',
+								'Associated_Codes': 'CPT/MS-DRG',
+								'DeIdentified_Max_Allowed': 'De-identified Maximum',
+								'Deidentified_Min_Allowed': 'De-identified Minimum'
+								 }, inplace=True)
+
+			dfs_list.append(df)
+		else:
+			continue
 
 	return pd.concat(dfs_list)
+

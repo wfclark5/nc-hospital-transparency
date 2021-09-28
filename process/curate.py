@@ -5,32 +5,32 @@ from process.utils import *
 
 global date 
 
-date =  datetime.datetime.now().strftime("%Y-%m-%d")
+date =  datetime.datetime.now().strftime("%Y-%m")
 
 
-def curate_duke(duke_df:pd.DataFrame, curated_path:str) -> pd.DataFrame:
+def curate_duke(df_duke:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
-	duke_df = duke_df.astype(str)
+	df_duke = df_duke.astype(str)
 	
-	duke_df =  duke_df[['CPT/MS-DRG' ,'Procedure Description' ,'Gross Charge' ,'AETNA MEDICARE' ,'BCBS MEDICARE' ,
+	df_duke =  df_duke[['CPT/MS-DRG' ,'Procedure Description' ,'Gross Charge' ,'AETNA MEDICARE' ,'BCBS MEDICARE' ,
 						'HUMANA MEDICARE' ,'UHC MEDICARE' ,'AETNA' ,'BCBS' ,'CIGNA' ,'Medcost' ,'UHC' ,'Tricare' ,
 						'Self Pay' ,'De-identified Minimum' ,'De-identified Maximum' ,'Filename', 'Type']]
 
-	cols = duke_df.columns.to_list()
+	cols = df_duke.columns.to_list()
 
 	for col in cols:
 
-		duke_df[col] = duke_df[col].apply(lambda s: s.replace(' $0.00 for routine inpatient services and up to $', '')).apply(lambda s: s.replace(' for all other services, depending on the circumstances ', '')).apply(lambda s: s.replace(' $0.00 for routine inpatient services; negotiated from ', '')).apply(lambda s: s.replace('$', ''))
+		df_duke[col] = df_duke[col].apply(lambda s: s.replace(' $0.00 for routine inpatient services and up to $', '')).apply(lambda s: s.replace(' for all other services, depending on the circumstances ', '')).apply(lambda s: s.replace(' $0.00 for routine inpatient services; negotiated from ', '')).apply(lambda s: s.replace('$', ''))
 		
 		try:
-				duke_df[col] = duke_df[col].str.split(' to ', expand=True)[1]
+				df_duke[col] = df_duke[col].str.split(' to ', expand=True)[1]
 		except:
 			pass
 
 		else:
-			duke_df = duke_df.replace('Payment data is not available for this DRG for this entity for this payer', '')
+			df_duke = df_duke.replace('Payment data is not available for this DRG for this entity for this payer', '')
 			try:
-				duke_df[col] = duke_df[col].str.split(', ', expand=True)[0].apply(lambda s: s.replace('Average payment of ', ''))
+				df_duke[col] = df_duke[col].str.split(', ', expand=True)[0].apply(lambda s: s.replace('Average payment of ', ''))
 			except:
 				pass
 
@@ -38,25 +38,25 @@ def curate_duke(duke_df:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 	system = 'DUKE'
 
-	duke_df['system'] = system
+	df_duke['system'] = system
 
 	filename = f'{system}_curated_{date}.csv'
 	
-	duke_df.to_csv(os.path.join(curated_path, filename), index=False)
+	df_duke.to_csv(os.path.join(curated_path, filename), index=False)
 	
-	return duke_df
+	return df_duke
 
 	
-def curate_cone(cone_df: pd.DataFrame, curated_path:str) -> pd.DataFrame:
+def curate_cone(df_cone: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
-	cone_df = cone_df.astype(str)
+	df_cone = df_cone.astype(str)
 
 	# strip trailing and leading white space in column names
 
-	cone_df.columns = cone_df.columns.str.strip()
+	df_cone.columns = df_cone.columns.str.strip()
 
 
-	cone_out_df = cone_df[['Procedure',
+	cone_out_df = df_cone[['Procedure',
 		'Code (CPT/HCPCS/MS-DRG)',
 		'NDC (for medications/drugs)',
 		'Rev Code',
@@ -82,7 +82,7 @@ def curate_cone(cone_df: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	cone_out_df['Patient Type'] = 'Outpatient'
 
 
-	cone_in_df = cone_df[['Procedure',
+	cone_in_df = df_cone[['Procedure',
 	'Code (CPT/HCPCS/MS-DRG)',
 	'NDC (for medications/drugs)',
 	'Rev Code',
@@ -139,44 +139,44 @@ def curate_cone(cone_df: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	return cone_curated_df
 
 
-def curate_ncb(ncb_df: pd.DataFrame, curated_path:str) -> pd.DataFrame:
+def curate_ncb(df_ncb: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	
-	ncb_df.columns = [s.replace(' Managed Care', '') for s in ncb_df.columns.to_list()]
+	df_ncb.columns = [s.replace(' Managed Care', '') for s in df_ncb.columns.to_list()]
 
-	system = 'NCB'
+	system = 'BAPTIST'
 
-	ncb_df['system'] = system
+	df_ncb['system'] = system
 	
 	filename= f'{system}_curated_{date}.csv'
 
-	ncb_df.to_csv(os.path.join(curated_path, filename), index=False)
+	df_ncb.to_csv(os.path.join(curated_path, filename), index=False)
 
-	return ncb_df
-
-
-
-def curate_app_shoppable(app_df: pd.DataFrame, curated_path:str) -> pd.DataFrame:
-	# drop column in app_df dataframe that is not needed
-	app_df = app_df.drop(['BCBS State', 'CMS Required DRG/CPT/HCPCS', 'CMH FY21 Chg (estimate)'], axis=1)
+	return df_ncb
 
 
-	app_df.columns = ['CPT/MS-DRUG', 'Procedure Description', 'Self-Pay', 'Medicare',
+
+def curate_app_shoppable(df_app: pd.DataFrame, curated_path:str) -> pd.DataFrame:
+	# drop column in df_app dataframe that is not needed
+	df_app = df_app.drop(['BCBS State', 'CMS Required DRG/CPT/HCPCS', 'CMH FY21 Chg (estimate)'], axis=1)
+
+
+	df_app.columns = ['CPT/MS-DRUG', 'Procedure Description', 'Self-Pay', 'Medicare',
 	   					'Medicaid', 'Aetna', 'BCBS', 'Cigna', 'Medcost', 'UHC', 'Filename']
 
 	system = 'APP'
 
-	app_df['system'] = system
+	df_app['system'] = system
 
 	filename= f'{system}_curated_{date}.csv'
 
-	app_df.to_csv(os.path.join(curated_path, filename), index=False)
+	df_app.to_csv(os.path.join(curated_path, filename), index=False)
 
-	return app_df
+	return df_app
 
 
-def curate_novant(novant_df: pd.DataFrame, curated_path:str) -> pd.DataFrame:
+def curate_novant(df_novant: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
-	novant_curated_df = novant_df[['Code Description', 
+	novant_curated_df = df_novant[['Code Description', 
 		'CPT/DRG', 
 		'Gross Charge',
 		'Aetna', 
@@ -362,3 +362,98 @@ def curate_northern(df_northern: pd.DataFrame, curated_path:str) -> pd.DataFrame
 	curated_north_df.to_csv(os.path.join(curated_path, filename), index=False)
 
 	return curated_north_df
+
+def curate_wakemed(df_wakemed:pd.DataFrame, curated_path:str) -> pd.DataFrame:
+	"""Combine payors into one series"""
+
+	df = df_wakemed[df_wakemed['payer'].notna()]
+
+	df = df.drop_duplicates(subset=['CPT/MS-DRG', 'payer'])
+
+	df = df.pivot(index=['CPT/MS-DRG', 'Patient Type', 'Self Pay', 'Gross Charge', 'De-identified Maximum', 
+		'De-identified Minimum', 'Filename'], columns='payer', values='Payer_Allowed_Amount')
+
+	df.reset_index(inplace=True)
+
+	df['AETNA'] = combine_related([df["AETNA COMMERCIAL"], df["AETNA PPO"], df["AETNA HMO"]])
+	df['UHC'] = combine_related([df["UNITED HEALTHCARE COMMERCIAL"], df["UNITED HEALTHCARE MEDICARE ADVANTAGE"], df["UNITED HEALTHCARE PPO"], df["UNITED HEALTHCARE HMO"]])
+	df['BCBS'] = combine_related([df["BCBS HMO"], df["BCBS COMMERCIAL"], df["BCBS PPO"]])
+	df['HUMANA'] = df["HUMANA PPO"]
+	df['HUMANA MEDICARE'] = df["HUMANA MEDICARE ADVANTAGE"]
+	df['CIGNA'] = df["CIGNA COMMERCIAL"]
+
+	df.drop(columns=['AETNA COMMERCIAL', 'AETNA PPO', 'AETNA HMO', 'UNITED HEALTHCARE COMMERCIAL', 
+					'UNITED HEALTHCARE MEDICARE ADVANTAGE', 'UNITED HEALTHCARE PPO', 'BCBS HMO', 
+					'BCBS COMMERCIAL', 'BCBS PPO', 'HUMANA PPO', 'HUMANA MEDICARE ADVANTAGE', 
+					'CIGNA COMMERCIAL', 'CONNECTICUT GENERAL COMMERCIAL', 'GEISINGER HEALTHPLAN HMO',
+       				'GEISINGER HEALTHPLAN PPO', 'KAISER FOUNDATION HEALTH PLAN HMO',
+       				'NC STATE HEALTH PLAN PPO', 'UNITED HEALTHCARE HMO'], inplace=True)
+	
+
+	system = 'WAKEMED'
+	
+	df['system'] = system
+	
+	filename= f'{system}_curated_{date}.csv'
+
+	df.to_csv(os.path.join(curated_path, filename), index=False)
+
+	return df
+
+	
+def curate_first(df_first:pd.DataFrame, curated_path:str) -> pd.DataFrame:
+	"""Curates first health into standard format"""
+
+	df = df_first.rename(columns={'payor.name': 'payer',
+									'payor.maxAllowable': 'rate', 
+									'code': 'CPT/MS-DRG', 
+									'description': 'Procedure Description', 
+									'grossCharge': 'Gross Charge'})
+
+	df = df[['payer', 'rate', 'CPT/MS-DRG', 'Procedure Description', 'Gross Charge', 'Filename']]
+
+	df.drop_duplicates(subset=['payer', 'CPT/MS-DRG'], inplace=True)
+
+	df = df.pivot(index=['CPT/MS-DRG', 'Procedure Description', 'Gross Charge', 'Filename'], columns='payer', values='rate')
+
+	df.reset_index(inplace=True)
+
+	bcbs = [df["BCBSNC HOST"], df["BCBS OF NC"], df["BLUE CROSS BLUE SHIELD OF NORTH CAROLINA"], df["BCBSNC-BLUE CROSS BLUE SHIELD"]] 
+	humana_medicare = [df["HUMANA INC. MEDICARE ADVANTAGE PPO"], df["HUMANA INC. MEDICARE ADVANTAGE HMO"]] 
+	tricare = [df["TRICARE EAST"], df["TRICARE TDEFIC"], df["TRIWEST HEALTHCARE ALLIANCE"]] 
+	aetna = [df["AETNA"], df["AETNA HEALTH AND LIFE INSURANCE COMPANY"], df["AETNA AMERICAN CONTINENTAL INSURANCE COMPANY"], df["AETNA HEALTH INS COMPANY"], df["AETNA SEHBP EDUCATORS MEDICARE PLAN NET 04259"]] 
+	uhc = df["UNITED HEALTHCARE INSURANCE COMPANY"]
+	uhc_medicare = [df["UNITED HEALTHCARE INSURANCE COMPANY AARP MEDICARE ADVANTAGE CHOICE"], df["UNITED HEALTHCARE INSURANCE COMPANY AARP MEDICARE ADVANTAGE PLAN 1"], df["UNITED HEALTHCARE INSURANCE COMPANY AARP MEDICARE ADVANTAGE PLAN 2"]] 
+	cigna = df["CIGNA HEALTH AND LIFE INSURANCE COMPANY"] 
+	humana = df["HUMANA INC."]
+
+
+
+	df['AETNA'] = combine_related(aetna)
+	df['AETNA MEDICARE'] = None
+	df['UHC'] = uhc
+	df['UHC MEDICARE'] = combine_related(uhc_medicare)
+	df['BCBS'] = combine_related(bcbs)
+	df['BCBS MEDICARE'] = None
+	df['HUMANA'] = humana
+	df['HUMANA MEDICARE'] = combine_related(humana_medicare)
+	df['CIGNA'] = cigna
+	df['CIGNA MEDICARE'] = None
+	df['TRICARE'] = combine_related(tricare)
+
+
+	df = df[['CPT/MS-DRG', 'Procedure Description', 'Gross Charge', 'AETNA', 
+			'AETNA MEDICARE', 'UHC', 'UHC MEDICARE', 'BCBS', 'BCBS MEDICARE', 
+			'HUMANA', 'HUMANA MEDICARE', 'CIGNA', 'CIGNA MEDICARE', 'TRICARE', 'MEDCOST', 'Filename']]
+	
+
+	system = 'FIRST'
+	
+	df['system'] = system
+	
+	filename= f'{system}_curated_{date}.csv'
+
+	df.to_csv(os.path.join(curated_path, filename), index=False)
+
+	return df
+

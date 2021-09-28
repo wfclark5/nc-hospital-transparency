@@ -25,7 +25,13 @@ import requests
 from pathlib import Path
 import io
 import boto3
+from functools import reduce
+import numpy as np
 
+
+def combine_related(list_of_cols):
+    """Combine related df's"""
+    return reduce(lambda x,y: x.combine_first(y), list_of_cols)
 
 
 
