@@ -243,8 +243,6 @@ def curate_nhrmc(df_nhrmc_op: pd.DataFrame, df_nhrmc_ip: pd.DataFrame, curated_p
 								'Filename']].copy()
 	
 	df_nhrmc_op['Patient Type'] = 'Outpatient'
-
-	print(df_nhrmc_ip.columns)
 	
 	df_nhrmc_ip['Cigna'].fillna(df_nhrmc_ip['Cigna HMO/PPO'], inplace =True)
 

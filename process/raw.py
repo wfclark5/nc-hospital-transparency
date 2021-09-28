@@ -193,6 +193,7 @@ def get_duke(hospital_urls: dict, raw_download_path: str, hospital_id='duke-univ
 	return pd.concat(df_list)
 
 
+
 def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-carolina-baptist-hospital') -> pd.DataFrame:
 
 	"""Get Wake-Forest Baptist data and download the CSV file"""
@@ -220,7 +221,6 @@ def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-caro
 
 
 		# check to see if column name is in dataframe and if it is replace it 
-
 		
 		df.rename(columns={'Inpatient/Outpatient': 'Patient Type', 
 								'CPT/HCPC Code': 'CPT', 
@@ -231,6 +231,8 @@ def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-caro
 								'Gross Charges': 'Gross Charge',
 								'Min': 'De-identified Minimum',
 								'Max': 'De-identified Maximum',
+								'Minimum Negotiated Charge': 'De-identified Minimum', 
+								'Maximum Negotiated Charge': 'De-identified Maximum',
 								'Aetna Coventry FirstHealth Wellpath': 'Aetna Managed Care',
 								'Aetna\nCoventry FirstHealth Wellpath': 'Aetna Managed Care',
 								'Humana Choicecare': 'Humana',
@@ -250,15 +252,14 @@ def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-caro
 			df['Medcost'] = None
 
 		df=df[["Patient Type", "DRG", "Rev Code",  "CPT", 
-				"NDC",	"Procedure Description", "Gross Charge", "Discounted Cash Price", "De-identified Minimum", 
-				"De-identified Maximum",	"Aetna Managed Care" ,"Aetna Medicare",	"BCBS Managed Care", "Blue Medicare", "Cigna Managed Care" , 
+				"NDC",	"Procedure Description", "Gross Charge", "Discounted Cash Price", 'De-identified Minimum', 
+				'De-identified Maximum',	"Aetna Managed Care" ,"Aetna Medicare",	"BCBS Managed Care", "Blue Medicare", "Cigna Managed Care" , 
 				"Humana", "Humana Medicare"	, "UHC Managed Care", "UHC Medicare", 'Medcost', "Filename"]]																								
 
 		# append to list
 		df_list.append(df)
 	
 	return pd.concat(df_list)
-
 		
 		
 
@@ -433,10 +434,6 @@ def get_first(hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
 		url_list = hospital_urls[hospital_id]
 
-		download_path = os.path.join(raw_download_path, hospital_id)
-		
-		create_directory(download_path)
-
 		for url in url_list:
 			# infer filename from url 
 			# filename = url.split('/')[-1]
@@ -447,21 +444,27 @@ def get_first(hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 			json_data =  json.loads(response.content)['response']
 			df = pd.json_normalize(json_data, record_path='payors', meta=meta, errors='ignore', record_prefix='payor.')
 			df['Filename'] = hospital_id
-			filepath = os.path.join(download_path, f'{hospital_id}_standardcharges.csv')
 			# if file does not exist write header 
-			if not os.path.isfile(filepath):
-				df.to_csv(filepath, header=headers, index=False)
-			else: # else it exists so append without writing the header
-				df.to_csv(filepath, mode='a', header=False, index=False)
 		
 			if 'moore' in hospital_id:
 				df_moore_list.append(df)
 			else:
 				df_mont_list.append(df)
 
+
+	hospital_id = 'first-health'
+
+	download_path = os.path.join(raw_download_path, hospital_id)
+		
+	create_directory(download_path)
+
 	dfs_list = df_moore_list + df_mont_list
 
-	return pd.concat(dfs_list)
+	df = pd.concat(dfs_list)
+
+	df.to_csv(os.path.join(raw_download_path, f'{hospital_id}_standard_charges.csv'), index=False)
+
+	return df
 
 		
 def get_iredell(hospital_urls: dict, raw_download_path: str, hospital_id='iredell-health') -> pd.DataFrame:
