@@ -462,7 +462,7 @@ def get_first(hospital_urls: dict, raw_download_path: str) -> pd.DataFrame:
 
 	df = pd.concat(dfs_list)
 
-	df.to_csv(os.path.join(raw_download_path, f'{hospital_id}_standard_charges.csv'), index=False)
+	df.to_csv(os.path.join(download_path, f'{hospital_id}_standard_charges.csv'), index=False)
 
 	return df
 
