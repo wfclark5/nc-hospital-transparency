@@ -571,25 +571,30 @@ def get_nhrmc(hospital_urls: dict, raw_download_path: str, hospital_id='nhrmc-he
 
 			df_op['Filename'] = filename
 
-			df_ip.to_csv(os.path.join(download_path, filename.replace('.xlsx', 'ip.csv')), index=False)
-	
-			df_op.to_csv(os.path.join(download_path, filename.replace('.xlsx', 'op.csv')), index=False)
-
 			df_ip.rename(columns = {'MS-DRG': 'MS-DRG/APC', 
 									'APC': 'MS-DRG/APC', 
 									'BCBS HMO PPO': 'BCBS', 
 									'Cigna PPO': 'Cigna', 
 									'UHC HMO': 'UHC'}, inplace=True)
 
+			df_ip['Patient Type'] = 'Inpatient'
+
 			df_op.rename(columns = {'MS-DRG': 'MS-DRG/APC', 
 									'APC': 'MS-DRG/APC', 
 									'BCBS HMO PPO': 'BCBS', 
 									'Cigna PPO': 'Cigna', 
 									'UHC HMO': 'UHC'}, inplace=True)
+			
+			df_op['Patient Type'] = 'Outpatient'
 
 			ip_df_list.append(df_ip)
 
 			op_df_list.append(df_op)
+
+			df_op.to_csv(os.path.join(raw_download_path, filename), index=False)
+
+			df_ip.to_csv(os.path.join(raw_download_path, filename), index=False)
+
 
 
 
@@ -602,11 +607,6 @@ def get_nhrmc(hospital_urls: dict, raw_download_path: str, hospital_id='nhrmc-he
 			df_op = pd.read_excel(response.content, sheet_name=4, skiprows=5)
 
 			df_op['Filename'] = filename
-
-			df_ip.to_csv(os.path.join(download_path, filename.replace('.xlsx', '_ip.csv')), index=False)
-	
-			df_op.to_csv(os.path.join(download_path, filename.replace('.xlsx', '_op.csv')), index=False)
-
 	
 			df_ip.rename(columns = {'MS-DRG': 'MS-DRG/APC', 
 									'APC': 'MS-DRG/APC', 
@@ -618,6 +618,8 @@ def get_nhrmc(hospital_urls: dict, raw_download_path: str, hospital_id='nhrmc-he
 									'UHC HMO/PPO': 'UHC', 
 									'MedCost PPO': 'MedCost'}, inplace=True)
 
+			df_ip['Patient Type'] = 'Inpatient'
+
 			df_op.rename(columns ={'MS-DRG': 'MS-DRG/APC', 
 									'APC': 'MS-DRG/APC', 
 									'DRG Average Charge': 'Average Charge', 
@@ -628,11 +630,24 @@ def get_nhrmc(hospital_urls: dict, raw_download_path: str, hospital_id='nhrmc-he
 									'UHC HMO/PPO': 'UHC', 
 									'MedCost PPO': 'MedCost'}, inplace=True)
 
+			df_op['Patient Type'] = 'Outpatient'
+
 			ip_df_list.append(df_ip)
 
 			op_df_list.append(df_op)
 
-	return pd.concat(ip_df_list), pd.concat(op_df_list)
+			df_op.to_csv(os.path.join(raw_download_path, filename), index=False)
+
+			df_ip.to_csv(os.path.join(raw_download_path, filename), index=False)
+
+		df_list = ip_df_list + op_df_list
+
+		df = pd.concat(df_list)
+
+
+
+
+	return df
 	
 	
 
@@ -705,6 +720,7 @@ def get_novant(hospital_urls: dict, raw_download_path: str, hospital_id='novant-
 	return pd.concat(df_list)
 
 
+
 def get_vidant(hospital_urls: dict, raw_download_path: str, hospital_id='vidant-health') -> pd.DataFrame:
 
 	"""Get Vidant Health data and download only the CSV file"""
@@ -728,7 +744,7 @@ def get_vidant(hospital_urls: dict, raw_download_path: str, hospital_id='vidant-
 		
 		# write reponse to csv file from excel
 
-		df = pd.read_excel(response.content, header=[3, 4])
+		df = pd.read_excel(response.content, header=[2,3])
 
 		df['Filename'] = filename
 
@@ -739,6 +755,7 @@ def get_vidant(hospital_urls: dict, raw_download_path: str, hospital_id='vidant-
 	return pd.concat(df_list)
 
 
+
 def get_atrium(hospital_urls: dict, raw_download_path: str, hospital_id='atrium-health') -> pd.DataFrame:
 
 	"""Get Atrium Health data from url"""
@@ -746,7 +763,7 @@ def get_atrium(hospital_urls: dict, raw_download_path: str, hospital_id='atrium-
 	url_list = hospital_urls[hospital_id]
 
 	download_path = os.path.join(raw_download_path, hospital_id)
-	
+
 	create_directory(download_path)
 
 	df_list = []
@@ -763,19 +780,44 @@ def get_atrium(hospital_urls: dict, raw_download_path: str, hospital_id='atrium-
 
 		df = pd.read_json(response.data)
 
-		df = df[df['Min /Max'] == 'MAX']
-
-		df.columns = df.columns.str.strip()
+		df.replace(r'', np.nan, inplace=True)
 
 		df['Filename'] = filename
 
-		df.to_csv(os.path.join(download_path, filename), index=False)
+		# strip white space
 
-		df_list.append(df)
+		df.columns = df.columns.str.strip()
+
+		if 'BehavioralHealth' in filename:
+			df['Min /Max'] = None
+			df['Outpatient Negotiated Charge'] = None
+			df['Plan'] = None
+			df['Inpatient Negotiated Charge'] = None
+
 
 		
+		df = df[["Procedure", "Code Type", "Code", "Rev Code", "Procedure Description", "Min /Max",
+					"Inpatient Gross Charge", "Inpatient Negotiated Charge", "Outpatient Gross Charge",
+					"Outpatient Negotiated Charge", "TabName", "Quantity", "Payer", "Plan(s)",  "Inpatient Discounted Charge",
+					"Outpatient Discounted Charge", "Plan", "Product", "Gross Charge - Facility", "Negotiated Charge - Facility",
+					"Gross Charge - Non-Facility", "Negotiated Charge - Non-Facility", "Filename"]]
+
+		# replace blanks will nan
+
+		df.replace(r'', np.nan, inplace=True)
+
+		df.to_csv(os.path.join(download_path, filename), index=False)
+
+		if 'CarolinasMedicalCenter' in filename or 'AtriumHealthUnion' in filename:
+
+			df = df.groupby(level=0, axis=1).agg(lambda x: ':'.join(x[x.notnull()].astype(str)))
 	
+		df_list.append(df)
+
+
 	return pd.concat(df_list)
+
+
 
 
 

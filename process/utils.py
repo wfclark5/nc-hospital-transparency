@@ -34,6 +34,94 @@ def combine_related(list_of_cols):
     return reduce(lambda x,y: x.combine_first(y), list_of_cols)
 
 
+def get_patient_type_df(df:pd.DataFrame, main_cols:list, type_dict:dict) -> pd.DataFrame:
+
+	"""Get the payer specific dataframe"""
+
+	# make all columns uppercase 
+
+	df.columns = [x.upper() for x in df.columns]
+
+	# make all columns in main calls uppercase 
+
+	main_cols = [x.upper() for x in main_cols]
+
+
+	dfs_list = []
+
+	for patient_type, type_cols in type_dict.items():
+
+		payer_dict = {'BCBS': [], 'BCBS MEDICARE': [], 'CIGNA': [], 'CIGNA MEDICARE': [],  'MEDCOST': [], 'AETNA': [], 'AETNA MEDICARE': [], 'UNITED': [], 'UNITED MEDICARE': [], 'DEIDENTIFIED MAXIMUM':[], 'DEIDENTIFIED MINIMUM':[]}
+
+
+		print(type_cols)
+		# for each key in payer_dict insert cols found in list to store in dictionary where key is in list
+		for col.upper() in type_cols:
+			if 'BCBS' in col:
+				if 'MEDICARE' in col:
+					payer_dict['BCBS MEDICARE'].append(df[col])
+				else: 
+					payer_dict['BCBS'].append(df[col])
+			elif 'CIGNA' in col:
+				if 'MEDICARE' in col:
+					payer_dict['CIGNA MEDICARE'].append(df[col])
+				else:
+					payer_dict['CIGNA'].append(df[col])
+			elif 'MEDCOST' in col:
+				payer_dict['MEDCOST'].append(df[col])
+			elif 'AETNA' in col:
+				if 'MEDICARE' in col:
+					payer_dict['AETNA MEDICARE'].append(df[col])
+				else:
+					payer_dict['AETNA'].append(df[col])
+			elif 'UNITED' in col:
+				if 'MEDICARE' in col:
+					payer_dict['UNITED MEDICARE'].append(df[col])
+				else:
+					payer_dict['UNITED'].append(df[col])
+			elif 'DE-IDENTIFIED' in col:
+				if 'MAXIMUM' in col:
+					payer_dict['DEIDENTIFIED MAXIMUM'].append(df[col])
+				else:
+					payer_dict['DEIDENTIFIED MINIMUM'].append(df[col])
+		
+
+		out_df = pd.DataFrame([])
+		# combine key values into one column of key 
+
+		out_df['BCBS'] = combine_related(payer_dict['BCBS'])
+
+		out_df['BCBS MEDICARE'] = combine_related(payer_dict['BCBS MEDICARE'])
+
+		out_df['AETNA'] = combine_related(payer_dict['AETNA'])
+
+		out_df['AETNA MEDICARE'] = combine_related(payer_dict['AETNA MEDICARE'])
+
+		out_df['CIGNA'] = combine_related(payer_dict['CIGNA'])
+
+		out_df['CIGNA MEDICARE'] = None
+
+		out_df['UHC'] = combine_related(payer_dict['UNITED'])
+
+		out_df['UHC MEDICARE'] = combine_related(payer_dict['UNITED MEDICARE'])
+
+		out_df['MEDCOST'] = combine_related(payer_dict['MEDCOST'])
+
+		out_df['De-identified Minimum'] = combine_related(payer_dict['DEIDENTIFIED MINIMUM'])
+
+		out_df['De-identified Maximum'] = combine_related(payer_dict['DEIDENTIFIED MAXIMUM'])
+
+		out_df = pd.concat([out_df, df[main_cols]], axis=1).astype(str)
+
+		for col in out_df.columns.values:
+			out_df[col] = out_df[col].astype(str).apply(lambda x: x.replace('$', '').replace('PER DIEM', ''))
+
+		out_df['Patient Type'] = patient_type
+
+		dfs_list.append(out_df)
+	
+	return pd.concat(dfs_list)
+
 
 # function to convert json to csv
 
