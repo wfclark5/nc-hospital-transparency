@@ -311,10 +311,8 @@ def get_app(hospital_urls: dict, raw_download_path: str, hospital_id='app-region
 		
 		else:
 			continue
-
-
 			
-	return pd.concat(cdm_lst), pd.concat(drg_lst), pd.concat(shop_df)
+	return pd.concat(shop_df)
 
 
 def get_catawba(hospital_urls: dict, raw_download_path: str, hospital_id='catawba-valley-medical-center') -> pd.DataFrame:
@@ -553,7 +551,7 @@ def get_nhrmc(hospital_urls: dict, raw_download_path: str, hospital_id='nhrmc-he
 	for url in url_list:
 		 
 		# infer filename from url 
-		filename = url.split('/')[-1]
+		filename = url.split('/')[-1].replace('.xlsx', '.csv')
 		# download the file
 
 
@@ -591,9 +589,9 @@ def get_nhrmc(hospital_urls: dict, raw_download_path: str, hospital_id='nhrmc-he
 
 			op_df_list.append(df_op)
 
-			df_op.to_csv(os.path.join(raw_download_path, filename), index=False)
+			df_op.to_csv(os.path.join(download_path, filename), index=False)
 
-			df_ip.to_csv(os.path.join(raw_download_path, filename), index=False)
+			df_ip.to_csv(os.path.join(download_path, filename), index=False)
 
 
 
@@ -636,15 +634,13 @@ def get_nhrmc(hospital_urls: dict, raw_download_path: str, hospital_id='nhrmc-he
 
 			op_df_list.append(df_op)
 
-			df_op.to_csv(os.path.join(raw_download_path, filename), index=False)
+			df_op.to_csv(os.path.join(download_path, filename), index=False)
 
-			df_ip.to_csv(os.path.join(raw_download_path, filename), index=False)
+			df_ip.to_csv(os.path.join(download_path, filename), index=False)
 
 		df_list = ip_df_list + op_df_list
 
 		df = pd.concat(df_list)
-
-
 
 
 	return df

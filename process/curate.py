@@ -7,7 +7,6 @@ global date
 
 date =  datetime.datetime.now().strftime("%Y-%m")
 
-
 def curate_duke(df_duke:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 	df_duke = df_duke.astype(str)
@@ -157,7 +156,7 @@ def curate_ncb(df_ncb: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 
 
-def curate_app_shoppable(df_app: pd.DataFrame, curated_path:str) -> pd.DataFrame:
+def curate_app(df_app: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	# drop column in df_app dataframe that is not needed
 	df_app = df_app.drop(['BCBS State', 'CMS Required DRG/CPT/HCPCS', 'CMH FY21 Chg (estimate)'], axis=1)
 
@@ -239,19 +238,20 @@ def curate_nhrmc(df_nhrmc: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	
 	df_nhrmc['Medcost'].fillna(df_nhrmc['MedCost'], inplace =True)
 	
-	df_nhrmc = df_nhrmc[['MS-DRG/APC', 'Patient Type', 'Average Charge', 'Description', 'Aetna', 'BCBS', 'Cigna', 'UHC',  
-								'Medcost', 'Humana', 'De-Identified Minimum Negotiated Charge', 
-								'De-Identified Maximum Negotiated Charge', 'Filename']].copy()
 	system = 'NHRMC'
 
 	df_nhrmc['system'] = system
+
+	df_nhrmc = df_nhrmc[['MS-DRG/APC', 'Patient Type', 'Average Charge', 'Description', 'Aetna', 'BCBS', 'Cigna', 'UHC',  
+								'Medcost', 'Humana', 'De-Identified Minimum Negotiated Charge', 
+								'De-Identified Maximum Negotiated Charge', 'Filename', 'system']].copy()
 
 	filename= f'{system}_curated_{date}.csv'
 
 
 	df_nhrmc.columns = ['CPT/MS-DRG', 'Patient Type', 'Gross Charge', 'Procedure Description', 'Aetna', 'BCBS', 'Cigna',
 	   							'UHC', 'Medcost', 'Humana', 'De-Identified Minimum', 'De-Identified Maximum', 
-								'Filename', 'Patient Type', 'system']
+								'Filename',  'system']
 
 	df_nhrmc.to_csv(os.path.join(curated_path, filename), index=False)
 
@@ -403,7 +403,7 @@ def curate_first(df_first:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 	bcbs = [df_first["BCBSNC HOST"], df_first["BCBS OF NC"], df_first["BLUE CROSS BLUE SHIELD OF NORTH CAROLINA"], df_first["BCBSNC-BLUE CROSS BLUE SHIELD"]] 
 	humana_medicare = [df_first["HUMANA INC. MEDICARE ADVANTAGE PPO"], df_first["HUMANA INC. MEDICARE ADVANTAGE HMO"]] 
-	tricare = [df_first["TRICARE EAST"], df_first["TRICARE TDEFIC"], df_first["TRIWEST HEALTHCARE ALLIANCE"]] 
+	tricare = [df_first["TRICARE EAST"], df_first["TRICARE TDEFIC"]] 
 	aetna = [df_first["AETNA"], df_first["AETNA HEALTH AND LIFE INSURANCE COMPANY"], df_first["AETNA AMERICAN CONTINENTAL INSURANCE COMPANY"], df_first["AETNA HEALTH INS COMPANY"], df_first["AETNA SEHBP EDUCATORS MEDICARE PLAN NET 04259"]] 
 	uhc = df_first["UNITED HEALTHCARE INSURANCE COMPANY"]
 	uhc_medicare = [df_first["UNITED HEALTHCARE INSURANCE COMPANY AARP MEDICARE ADVANTAGE CHOICE"], df_first["UNITED HEALTHCARE INSURANCE COMPANY AARP MEDICARE ADVANTAGE PLAN 1"], df_first["UNITED HEALTHCARE INSURANCE COMPANY AARP MEDICARE ADVANTAGE PLAN 2"]] 
@@ -544,8 +544,6 @@ def curate_vidant(df_vidant: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 	df_vidant.columns = cols_lst
 
-	print(cols_lst)
-
 	# set main cols
 
 	main_cols = ['CPT/HCPCS/DRG CODE',   'SERVICE CODE', 'DESCRIPTION', 'CHARGE', 'SELF PAY DISCOUNT RATE']
@@ -557,8 +555,6 @@ def curate_vidant(df_vidant: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	# get all of the inpatient columns from cols_lst
 
 	inpatient_cols =  main_cols + drg_cols + [col for col in cols_lst if 'INPATIENT' in col]
-
-	print(inpatient_cols)
 
 	# get all outpatient columns from cols_lst
 

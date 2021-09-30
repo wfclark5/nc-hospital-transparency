@@ -30,8 +30,8 @@ import numpy as np
 
 
 def combine_related(list_of_cols):
-    """Combine related df's"""
-    return reduce(lambda x,y: x.combine_first(y), list_of_cols)
+	"""Combine related df's"""
+	return reduce(lambda x,y: x.combine_first(y), list_of_cols)
 
 
 def get_patient_type_df(df:pd.DataFrame, main_cols:list, type_dict:dict) -> pd.DataFrame:
@@ -56,7 +56,8 @@ def get_patient_type_df(df:pd.DataFrame, main_cols:list, type_dict:dict) -> pd.D
 
 		print(type_cols)
 		# for each key in payer_dict insert cols found in list to store in dictionary where key is in list
-		for col.upper() in type_cols:
+		for col in type_cols:
+			col = col.upper()
 			if 'BCBS' in col:
 				if 'MEDICARE' in col:
 					payer_dict['BCBS MEDICARE'].append(df[col])
@@ -126,22 +127,22 @@ def get_patient_type_df(df:pd.DataFrame, main_cols:list, type_dict:dict) -> pd.D
 # function to convert json to csv
 
 def json_to_csv(json, filepath, lines):
-    
-    df = pd.read_json(json, lines=lines)
+	
+	df = pd.read_json(json, lines=lines)
 
-    df.to_csv(filepath, index=False)
+	df.to_csv(filepath, index=False)
 
 
 def list_duplicates(seq):
 
-    """List all of the duplicate file names in the download path d"""
+	"""List all of the duplicate file names in the download path d"""
 
-    seen = set()
-    seen_add = seen.add
-    # adds all elements it doesn't know yet to seen and all other to seen_twice
-    seen_twice = set( x for x in seq if x in seen or seen_add(x) )
-    # # turn the set into a list (as requested)
-    return list(seen_twice)
+	seen = set()
+	seen_add = seen.add
+	# adds all elements it doesn't know yet to seen and all other to seen_twice
+	seen_twice = set( x for x in seq if x in seen or seen_add(x) )
+	# # turn the set into a list (as requested)
+	return list(seen_twice)
 
 
 # a function to write a get from urllib requests.context to an S3 bucket
@@ -149,185 +150,185 @@ def list_duplicates(seq):
 
 def write_to_s3(bucket_name, filepath, response):
 
-    """
-    Write file to S3 bucket
+	"""
+	Write file to S3 bucket
 
-    Args
-    ----
-    filepath : str
-        The path to the file to be uploaded.
-    bucket_name : str
-        The name of the S3 bucket.
-    s3_key : str
-        The key to be used for the file in the S3 bucket.
+	Args
+	----
+	filepath : str
+		The path to the file to be uploaded.
+	bucket_name : str
+		The name of the S3 bucket.
+	s3_key : str
+		The key to be used for the file in the S3 bucket.
 
-    """
+	"""
 
-    # create a session and connect to S3
+	# create a session and connect to S3
 
-    session = boto3.Session(
-        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
-    )
+	session = boto3.Session(
+		aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+		aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
+	)
 
-    s3 = session.resource('s3')
+	s3 = session.resource('s3')
 
-    # open file and upload to S3
+	# open file and upload to S3
 
-    s3.Bucket(bucket_name).put_object(Key=filepath, Body=response.content)
+	s3.Bucket(bucket_name).put_object(Key=filepath, Body=response.content)
 
-    # remove the file from the local directory
+	# remove the file from the local directory
 
-    # os.remove(filepath)
+	# os.remove(filepath)
 
 
 def create_directory(directory):
 
-    """
-    Create a directory if it doesn't exist.
+	"""
+	Create a directory if it doesn't exist.
 
-    Args
-    ----
-    directory : str
-        The path to the directory.
+	Args
+	----
+	directory : str
+		The path to the directory.
 
-    """
+	"""
 
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+	if not os.path.exists(directory):
+		os.makedirs(directory)
 
 def create_driver(download_path, driver_path):
 
-    """
-    Create selenium chrome browser so we can pull the page source passed in url
-    """
+	"""
+	Create selenium chrome browser so we can pull the page source passed in url
+	"""
 
-    # set up Chrome browser for selenium
+	# set up Chrome browser for selenium
 
-    options = webdriver.ChromeOptions()
+	options = webdriver.ChromeOptions()
 
-    # add headless option 
+	# add headless option 
 
-    options.add_argument("headless")
+	options.add_argument("headless")
 
-    # simulate maxing out the browser window
+	# simulate maxing out the browser window
 
-    options.add_argument("start-maximized")
+	options.add_argument("start-maximized")
 
-    # remove selenium log level 
+	# remove selenium log level 
 
-    options.add_argument("--log-level=3")
+	options.add_argument("--log-level=3")
 
-    # disable blink features to get around captcha
+	# disable blink features to get around captcha
 
-    options.add_argument("--disable-blink-features")
+	options.add_argument("--disable-blink-features")
 
-    options.add_argument("--disable-blink-features=AutomationControlled")
+	options.add_argument("--disable-blink-features=AutomationControlled")
 
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+	options.add_experimental_option("excludeSwitches", ["enable-automation"])
 
-    # add browser notifications
+	# add browser notifications
 
-    options.add_experimental_option("prefs", { 
-        "profile.default_content_setting_values.notifications": 1 
-    })
+	options.add_experimental_option("prefs", { 
+		"profile.default_content_setting_values.notifications": 1 
+	})
 
-    # set download path
+	# set download path
 
-    chrome_prefs = {"download.default_directory": download_path}
+	chrome_prefs = {"download.default_directory": download_path}
 
-    options.experimental_options["prefs"] = chrome_prefs
+	options.experimental_options["prefs"] = chrome_prefs
 
-    options.add_experimental_option('useAutomationExtension', False)
+	options.add_experimental_option('useAutomationExtension', False)
 
-    driver = webdriver.Chrome(executable_path=driver_path, options=options)
+	driver = webdriver.Chrome(executable_path=driver_path, options=options)
 
-    # set user agent to avoid being blocked by websites
+	# set user agent to avoid being blocked by websites
 
-    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+	driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
-    driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
+	driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
 
-    # get generic headers
+	# get generic headers
 
-    driver.get('https://www.httpbin.org/headers')
+	driver.get('https://www.httpbin.org/headers')
 
-    return driver
+	return driver
 
 
 def get_url_data(url, driver=None, is_download=False, is_download_request=False, is_request=False, wait=False):
 
-    """Use driver to get page source or download data"""
+	"""Use driver to get page source or download data"""
 
-    # create headers for user agent for requests 
+	# create headers for user agent for requests 
 
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+	headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
 
-    # if is_download is true, get page or download data
-    if is_download:
+	# if is_download is true, get page or download data
+	if is_download:
 
-        if wait == True:
-            driver.get(url)
-            sleep(10)
-        else:
-            driver.get(url)
-    
-    if is_request:
+		if wait == True:
+			driver.get(url)
+			sleep(10)
+		else:
+			driver.get(url)
+	
+	if is_request:
 
-        http = urllib3.PoolManager()
+		http = urllib3.PoolManager()
 
-        response = http.request('GET', url, retries = 100)
-    
-        return response
-    
-    if is_download_request:
+		response = http.request('GET', url, retries = 100)
+	
+		return response
+	
+	if is_download_request:
 
-        response = requests.get(url, headers=headers)
+		response = requests.get(url, headers=headers)
 
-        return response
+		return response
 
-        
-    else:
-        try:
-            driver.get(url)
-        except TimeoutException:
-            print("Loading took too much time!")
-        
+		
+	else:
+		try:
+			driver.get(url)
+		except TimeoutException:
+			print("Loading took too much time!")
+		
 
-    return driver
+	return driver
 
 
 
 def download_wait(directory, timeout, nfiles=None):
-    """
-    Wait for downloads to finish with a specified timeout.
+	"""
+	Wait for downloads to finish with a specified timeout.
 
-    Args
-    ----
-    directory : str
-        The path to the folder where the files will be downloaded.
-    timeout : int
-        How many seconds to wait until timing out.
-    nfiles : int, defaults to None
-        If provided, also wait for the expected number of files.
+	Args
+	----
+	directory : str
+		The path to the folder where the files will be downloaded.
+	timeout : int
+		How many seconds to wait until timing out.
+	nfiles : int, defaults to None
+		If provided, also wait for the expected number of files.
 
-    """
+	"""
 
-    print("Waiting for downloads to finish")
+	print("Waiting for downloads to finish")
 
-    seconds = 0
-    dl_wait = True
-    while dl_wait and seconds < timeout:
-        sleep(1)
-        dl_wait = False
-        files = os.listdir(directory)
-        if nfiles and len(files) != nfiles:
-            dl_wait = True
+	seconds = 0
+	dl_wait = True
+	while dl_wait and seconds < timeout:
+		sleep(1)
+		dl_wait = False
+		files = os.listdir(directory)
+		if nfiles and len(files) != nfiles:
+			dl_wait = True
 
-        for fname in files:
-            if fname.endswith('.crdownload'):
-                dl_wait = True
+		for fname in files:
+			if fname.endswith('.crdownload'):
+				dl_wait = True
 
-        seconds += 1
-    return seconds
+		seconds += 1
+	return seconds
