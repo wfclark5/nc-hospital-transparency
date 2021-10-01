@@ -11,15 +11,15 @@ def curate_duke(df_duke:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 	df_duke = df_duke.astype(str)
 	
-	df_duke =  df_duke[['CPT/MS-DRG' ,'Procedure Description' ,'Gross Charge' ,'AETNA MEDICARE' ,'BCBS MEDICARE' ,
-						'HUMANA MEDICARE' ,'UHC MEDICARE' ,'AETNA' ,'BCBS' ,'CIGNA' ,'Medcost' ,'UHC' ,'Tricare' ,
-						'Self Pay' ,'De-identified Minimum' ,'De-identified Maximum' ,'Filename', 'Type']]
+	df_duke =  df_duke[['CPT/MS-DRG' ,'Procedure Description' ,'Gross Charge' ,'AETNA MEDICARE' ,'BCBS MEDICARE' ,
+						'HUMANA MEDICARE' ,'UHC MEDICARE' ,'AETNA' ,'BCBS' ,'CIGNA' ,'Medcost' ,'UHC' ,'Tricare' ,
+						'Self Pay' ,'De-identified Minimum' ,'De-identified Maximum' ,'Filename']]
 
 	cols = df_duke.columns.to_list()
 
 	for col in cols:
 
-		df_duke[col] = df_duke[col].apply(lambda s: s.replace(' $0.00 for routine inpatient services and up to $', '')).apply(lambda s: s.replace(' for all other services, depending on the circumstances ', '')).apply(lambda s: s.replace(' $0.00 for routine inpatient services; negotiated from ', '')).apply(lambda s: s.replace('$', ''))
+		df_duke[col] = df_duke[col].apply(lambda s: s.replace('\xa0', '')).apply(lambda s: s.replace(' $0.00 for routine inpatient services and up to $', '')).apply(lambda s: s.replace(' for all other services, depending on the circumstances ', '')).apply(lambda s: s.replace(' $0.00 for routine inpatient services; negotiated from ', '')).apply(lambda s: s.replace('$', ''))
 		
 		try:
 				df_duke[col] = df_duke[col].str.split(' to ', expand=True)[1]
@@ -109,7 +109,7 @@ def curate_cone(df_cone: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 	cone_headers = ['Procedure', 'CPT/MS-DRG', 'NDC Code', 'Rev Code', 'Procedure Description','Gross Charge', 'AETNA',
 						'AETNA MEDICARE', 'BCBS','BCBS MEDICARE','CIGNA','CIGNA MEDICARE','HUMANA','HUMANA MEDICARE','UHC','UHC MEDICARE',
-						'Medcost','Tricare','Uninsured Rate','De-identified Minimum','De-identified Maximum','Patient Type', 'Filename']
+						'Medcost','Tricare','Self Pay','De-identified Minimum','De-identified Maximum','Patient Type', 'Filename']
 
 
 
@@ -161,7 +161,7 @@ def curate_app(df_app: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	df_app = df_app.drop(['BCBS State', 'CMS Required DRG/CPT/HCPCS', 'CMH FY21 Chg (estimate)'], axis=1)
 
 
-	df_app.columns = ['CPT/MS-DRUG', 'Procedure Description', 'Self Pay', 'Medicare',
+	df_app.columns = ['CPT/MS-DRG', 'Procedure Description', 'Self Pay', 'Medicare',
 	   					'Medicaid', 'Aetna', 'BCBS', 'Cigna', 'Medcost', 'UHC', 'Filename']
 
 	system = 'APP'
@@ -197,7 +197,7 @@ def curate_novant(df_novant: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 		'Filename']].copy()
 
 	df_novant.columns = ['Procedure Description', 
-		'CPT/DRG', 
+		'CPT/MS-DRG', 
 		'Gross Charge',
 		'Aetna', 
 		'Aetna Medicare', 
@@ -316,6 +316,10 @@ def curate_northern(df_northern: pd.DataFrame, curated_path:str) -> pd.DataFrame
 	df_northern = df_northern.pivot(index=['PRIMARY_CODE', 'PRIMARY_CODE_DESCRIPTION',  'CASH_PRICE', 'GROSS_CHARGES', 'PT_SUMMARY', 'Filename'], columns=['PAYER_NAME'], values=['MAX_NEGOTIATED_RATE']).stack(level=[0]).reset_index()
 
 	df_northern['BCBS'] = df_northern['BCBS OF NC'].fillna(df_northern['BLUE CROSS OF NORTH CAROLINA'])
+
+	df_northern['UNITED HEALTHCARE'] = df_northern['UNITED HEALTHCARE'].fillna(df_northern['UHC'])
+
+	df_northern = df_northern.drop(columns=['UHC'])
 
 	df_northern.reset_index(drop=True, inplace=True)
 
@@ -440,6 +444,7 @@ def curate_first(df_first:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 
 	return df_first
 
+
 def curate_atrium(df_atrium:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	
 	df_atrium_ip = df_atrium[['Code',  'Procedure Description', 'Payer', 'Inpatient Gross Charge', 'Inpatient Negotiated Charge', 'Filename']].copy()
@@ -503,15 +508,15 @@ def curate_atrium(df_atrium:pd.DataFrame, curated_path:str) -> pd.DataFrame:
 		'CIGNA MEDICARE ADV [115]', 'HUMANA [103]', 'HUMANA MEDICARE ADV [117]', 
 		'MEDCOST [196]', 'UNITED HEALTHCARE [101]', 'UHC MEDICARE']]
 
-	df_atrium.columns = ['Procedure Description', 'CPT/MS-DRG', 'Patient Type', 'Gross Charge', 'BCBS NC', 'BCBS MEDICARE', 'AETNA', 'AETNA MEDICARE', 'CIGNA',
+	df_atrium.columns = ['Procedure Description', 'CPT/MS-DRG', 'Patient Type', 'Gross Charge', 'BCBS', 'BCBS MEDICARE', 'AETNA', 'AETNA MEDICARE', 'CIGNA',
 		'CIGNA MEDICARE', 'HUMANA', 'HUMANA MEDICARE', 
-		'MEDCOST', 'UNITED HEALTHCARE', 'UHC MEDICARE']
+		'MEDCOST', 'UHC', 'UHC MEDICARE']
 		
 	df_atrium = df_atrium.replace({'nan': np.nan})
 
-	df_atrium.dropna(subset=['Gross Charge','BCBS NC', 'BCBS MEDICARE', 'AETNA', 'AETNA MEDICARE', 'CIGNA',
+	df_atrium.dropna(subset=['Gross Charge','BCBS', 'BCBS MEDICARE', 'AETNA', 'AETNA MEDICARE', 'CIGNA',
 		'CIGNA MEDICARE', 'HUMANA', 'HUMANA MEDICARE', 
-		'MEDCOST', 'UNITED HEALTHCARE', 'UHC MEDICARE'], how='all', inplace=True)
+		'MEDCOST', 'UHC', 'UHC MEDICARE'], how='all', inplace=True)
 
 	system = 'ATRIUM'
 
@@ -570,7 +575,7 @@ def curate_vidant(df_vidant: pd.DataFrame, curated_path:str) -> pd.DataFrame:
 	   'CIGNA MEDICARE', 'UHC', 'UHC MEDICARE', 'MEDCOST',
 	   'De-identified Minimum', 'De-identified Maximum', 'CPT/MS-DRG',
 	   'Rev Code', 'Procedure Description', 'Gross Charge',
-	   'Self-Pay', 'Patient Type']
+	   'Self Pay', 'Patient Type']
 
 	
 	system = 'VIDANT'

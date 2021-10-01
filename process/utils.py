@@ -53,8 +53,6 @@ def get_patient_type_df(df:pd.DataFrame, main_cols:list, type_dict:dict) -> pd.D
 
 		payer_dict = {'BCBS': [], 'BCBS MEDICARE': [], 'CIGNA': [], 'CIGNA MEDICARE': [],  'MEDCOST': [], 'AETNA': [], 'AETNA MEDICARE': [], 'UNITED': [], 'UNITED MEDICARE': [], 'DEIDENTIFIED MAXIMUM':[], 'DEIDENTIFIED MINIMUM':[]}
 
-
-		print(type_cols)
 		# for each key in payer_dict insert cols found in list to store in dictionary where key is in list
 		for col in type_cols:
 			col = col.upper()
@@ -314,8 +312,6 @@ def download_wait(directory, timeout, nfiles=None):
 		If provided, also wait for the expected number of files.
 
 	"""
-
-	print("Waiting for downloads to finish")
 
 	seconds = 0
 	dl_wait = True

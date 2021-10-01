@@ -24,4 +24,7 @@ Example Table:
 
 
 
+### Refences: 
 
+* [Hospitals and Insurers Didn’t Want You to See These Prices. Here’s Why](https://www.nytimes.com/interactive/2021/08/22/upshot/hospital-prices.html)
+* [North Carolina Hosptial Association Price Transparency Links](https://www.ncha.org/hospital-price-transparency/)

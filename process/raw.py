@@ -167,31 +167,24 @@ def get_duke(hospital_urls: dict, raw_download_path: str, hospital_id='duke-univ
 		
 		df.rename(columns={'HCPCS/ CPT/NDC Code' : 'CPT/MS-DRG', 
 						   'Procedure Name' : 'Procedure Description', 
-						   'Charge' : 'Gross Charge', 
-						   'Medicare Adv - Aetna' : 'AETNA MEDICARE', 
-						   'Medicare Adv - BCBS' : 'BCBS MEDICARE', 
-						   'Medicare Adv - Humana' : 'HUMANA MEDICARE', 
+						   'Charge' : 'Gross Charge', 
+						   'Medicare Adv - Aetna' : 'AETNA MEDICARE', 
+						   'Medicare Adv - BCBS' : 'BCBS MEDICARE', 
+						   'Medicare Adv - Humana' : 'HUMANA MEDICARE', 
 						   'Medicare Adv - United' : 'UHC MEDICARE', 
 						   'Aetna':'AETNA',  
 						   'Cigna':'CIGNA', 
 						   'Medcost':'Medcost', 
 						   'United':'UHC', 
 						   'Tricare':'Tricare', 
-						   'De-identified Minimum' : 'De-identified Minimum', 
-						   'De-identified Maximum' : 'De-identified Maximum',  
+						   'De-identified Minimum' : 'De-identified Minimum', 
+						   'De-identified Maximum' : 'De-identified Maximum',  
 						   'MS DRG' : 'CPT/MS-DRG', 
-						   'MS DRG w Description' :	'Procedure Description'}, inplace=True)
-
-		if 'cdm' in filename:
-			df['Type'] = 'CDM'
-
-		if 'drg' in filename:
-			df['Type'] = 'DRG'
+						   'MS DRG w Description' :	'Procedure Description'}, inplace=True)
 
 		df_list.append(df)
 		
 	return pd.concat(df_list)
-
 
 
 def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-carolina-baptist-hospital') -> pd.DataFrame:
@@ -236,8 +229,10 @@ def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-caro
 								'Aetna Coventry FirstHealth Wellpath': 'Aetna Managed Care',
 								'Aetna\nCoventry FirstHealth Wellpath': 'Aetna Managed Care',
 								'Humana Choicecare': 'Humana',
+								'Blue Medicare': 'BCBS Medicare',
 								'BCBS MEDICARE': 'BCBS Medicare',
-								'Uninsured Discount': 'Discounted Cash Price',
+								'Discounted Cash Price': 'Self Pay',
+								'Uninsured Discount': 'Self Pay',
 								'BCBS\n(PPO, State Health Plan, Federal Employees, Blue Select)': 'BCBS Managed Care',
 								'BCBS\n(PPO, State Health, Federal Employees, Blue Select, Blue Value)': 'BCBS Managed Care',
 								'BCBS\n(PPO, State Health, Federal Employees, Blue Select)': 'BCBS Managed Care', 
@@ -251,16 +246,20 @@ def get_ncb(hospital_urls: dict, raw_download_path: str, hospital_id='north-caro
 		if 'North-Carolina-Baptist-Hospital' in filename:
 			df['Medcost'] = None
 
+
+		df['CPT/MS-DRG'] = combine_related([df['CPT'], df['DRG'], df['NDC']])
+		
+		print(df.columns)
+
 		df=df[["Patient Type", "DRG", "Rev Code",  "CPT", 
-				"NDC",	"Procedure Description", "Gross Charge", "Discounted Cash Price", 'De-identified Minimum', 
-				'De-identified Maximum',	"Aetna Managed Care" ,"Aetna Medicare",	"BCBS Managed Care", "Blue Medicare", "Cigna Managed Care" , 
+				"NDC",	"Procedure Description", "Gross Charge", "Self Pay", 'De-identified Minimum', 
+				'De-identified Maximum',	"Aetna Managed Care" ,"Aetna Medicare",	"BCBS Managed Care", "BCBS Medicare", "Cigna Managed Care" , 
 				"Humana", "Humana Medicare"	, "UHC Managed Care", "UHC Medicare", 'Medcost', "Filename"]]																								
 
 		# append to list
 		df_list.append(df)
 	
 	return pd.concat(df_list)
-		
 		
 
 def get_app(hospital_urls: dict, raw_download_path: str, hospital_id='app-regional-health-system') -> pd.DataFrame:
