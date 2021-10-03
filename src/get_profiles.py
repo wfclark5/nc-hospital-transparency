@@ -68,3 +68,4 @@ context.build_data_docs()
 validation_result_identifier = checkpoint_result.list_validation_result_identifiers()[0]
 
 context.open_data_docs(resource_identifier=validation_result_identifier)
+
