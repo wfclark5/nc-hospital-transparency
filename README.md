@@ -14,7 +14,7 @@ This work solves the transparency problem to query and aggregate all of North Ca
 
 ### Metadata
 
-These data consist of the gross hospital charges, uninsured charge, the max negotatied charge in dollars for fpir main payers in the state of NC (CIGNA, AETNA, BCBSNC, HUMANA, United, MEDCOST, TRICARE: Commercial and MEDICARE) by the services CPT or MS-DRG and service description. Additional metadata for all each the raw, curated, and presentation data assets can be found here: [metadata](https://github.com/wfclark5/nc-hospital-transparency/tree/main/data)    
+These data consist of the gross hospital charges, uninsured charge, the max negotatied charge in dollars for the biggest main payers in the state of NC (CIGNA, AETNA, BCBSNC, HUMANA, United, MEDCOST, TRICARE: Commercial and MEDICARE) by the services CPT or MS-DRG and service description. Additional metadata for all each the raw, curated, and presentation data assets can be found here: [metadata](https://github.com/wfclark5/nc-hospital-transparency/tree/main/data)    
 
 Example Table: 
 
@@ -24,7 +24,7 @@ Example Table:
 
 
 
-### Refences: 
+### References: 
 
 * [Hospitals and Insurers Didn’t Want You to See These Prices. Here’s Why](https://www.nytimes.com/interactive/2021/08/22/upshot/hospital-prices.html)
 * [North Carolina Hosptial Association Price Transparency Links](https://www.ncha.org/hospital-price-transparency/)
