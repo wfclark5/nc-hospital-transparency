@@ -155,11 +155,11 @@ def list_duplicates(seq):
 
 
 
-def upload_to_s3(bucket_name:str, filepath:str, file_name:str) -> None:
+def upload_to_s3(aws_profile:str, bucket_name:str, filepath:str, file_name:str) -> None:
 
 	"""Write a folder to an an S3 bucket"""
 
-	s3 = s3fs.S3FileSystem()
+	s3 = s3fs.S3FileSystem(anon=False, key=aws_profile)
 	s3_path = f"{bucket_name}/{file_name}"
 	s3.put(filepath, s3_path, recursive=True)
 
