@@ -35,6 +35,9 @@ import pandas as pd
 from dataprep.eda import create_report
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
+import zipfile
+import s3fs
+
 # from prefect import task, Flow
 
 def combine_related(list_of_cols):
@@ -151,41 +154,31 @@ def list_duplicates(seq):
 	return list(seen_twice)
 
 
-# a function to write a get from urllib requests.context to an S3 bucket
+
+def upload_to_s3(bucket_name:str, filepath:str, file_name:str) -> None:
+
+	"""Write a folder to an an S3 bucket"""
+
+	s3 = s3fs.S3FileSystem()
+	s3_path = f"{bucket_name}/{file_name}"
+	s3.put(filepath, s3_path, recursive=True)
+
+	return None
 
 
-def write_to_s3(bucket_name, filepath, response):
+# a function to 
 
-	"""
-	Write file to S3 bucket
+def make_zip(file_dir_in:str, file_name_out:str) -> None:
 
-	Args
-	----
-	filepath : str
-		The path to the file to be uploaded.
-	bucket_name : str
-		The name of the S3 bucket.
-	s3_key : str
-		The key to be used for the file in the S3 bucket.
+	"""Write all files in a directory and/or it's subdirectories make it a zipfile"""
 
-	"""
+	with zipfile.ZipFile(file_name_out, 'w', zipfile.ZIP_DEFLATED) as myzip:
+		for root, dirs, files in os.walk(file_dir_in):
+			for file in files:
+				myzip.write(os.path.join(root, file))
+				
+	return None
 
-	# create a session and connect to S3
-
-	session = boto3.Session(
-		aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-		aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
-	)
-
-	s3 = session.resource('s3')
-
-	# open file and upload to S3
-
-	s3.Bucket(bucket_name).put_object(Key=filepath, Body=response.content)
-
-	# remove the file from the local directory
-
-	# os.remove(filepath)
 
 
 def create_directory(directory):

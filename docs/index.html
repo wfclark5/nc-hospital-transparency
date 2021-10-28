@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Home</title>
+    <title>Home - NC Health Cost</title>
     <link rel="icon" type="image/png" sizes="100x100" href="assets/img/chiropractic%20(100%20x%20100%20px).png">
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
@@ -19,6 +19,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="https://unpkg.com/@bootstrapstudio/bootstrap-better-nav/dist/bootstrap-better-nav.min.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DG7QPVRJ5X"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-DG7QPVRJ5X');
+    </script>
+    <script id="mcjs">!function(c,h,i,m,p){m=c.createElement(h),p=c.getElementsByTagName(h)[0],m.async=1,m.src=i,p.parentNode.insertBefore(m,p)}(document,"script","https://chimpstatic.com/mcjs-connected/js/users/6f5b77b0572d65dc0fc517497/6c28e71631299f126a1db5e7b.js");</script>
 </head>
 
 <body>
@@ -68,7 +78,7 @@
                     <div class="col-md-6">
                         <h3>Analysis</h3>
                         <p>A dashboard has been created to provide a summary analysis of the final aggregated presentation data set for the questions we felt were most important to be answered. Example Questions we have answered so far are "Who is the most Expensive Health Insurer at each Hospital System?", "What is the minimum and maximum negotiated rates", "What are the differences between the gross charges for services at each hospital System?". We also have opened the dashboard up to allow others to use this tool as a self service to answer any questions they might have.&nbsp;<br><br></p>
-                        <div class="getting-started-info" style="padding: 11px;"><button class="btn btn-outline-primary btn-lg" type="button" style="padding: 12px 16px;height: 54px;margin: 0px;">Go to Dashboard</button></div>
+                        <div class="getting-started-info" style="padding: 11px;"><a class="btn btn-outline-primary btn-lg" role="button" style="padding: 12px 16px;height: 54px;margin: 0px;", href="analysis.html">Go to Dashboard</a></div>
                     </div>
                     <div class="col"><img class="img-thumbnail" src="assets/img/tech/nchospitals-map3.png" style="padding: 0px;min-width: 0;margin: 0px;">
                         <div class="getting-started-info"></div>
@@ -94,7 +104,7 @@
                 <div class="col-auto col-sm-3 col-xxl-1 offset-xxl-0 m-auto">
                     <h5>Data?</h5>
                     <ul>
-                        <li style="color: var(--bs-light);"><a href="#">Download</a></li>
+                        <li style="color: var(--bs-light);"><a href="http://nc-health-cost.s3-website-us-east-1.amazonaws.com/nc_health_cost_all.zip">Download It</a></li>
                     </ul>
                 </div>
                 <div class="col-auto col-sm-3 col-xxl-1 offset-xxl-0 m-auto">
