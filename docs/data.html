@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Data</title>
+    <link rel="icon" type="image/png" sizes="100x100" href="assets/img/chiropractic%20(100%20x%20100%20px).png">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Adamina&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Archivo+Black&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&amp;display=swap">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css">
+    <link rel="stylesheet" href="assets/css/styles.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-1.11.3/af-2.3.7/b-2.0.1/date-1.1.1/kt-2.6.4/r-2.2.9/sb-1.2.2/sp-1.4.0/sl-1.3.3/datatables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://unpkg.com/@bootstrapstudio/bootstrap-better-nav/dist/bootstrap-better-nav.min.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top clean-navbar" id="nav_bar_container" style="background: #ffffff;">
+        <div class="container-fluid"><img id="logo" src="assets/img/logos/hosp_trans_logo.png" style="width: 81px;height: 70px;"><a class="navbar-brand logo" href="index.html" style="margin: 0 auto;/*align-content: flex-start;*/">NC&nbsp;Health Cost&nbsp;&nbsp;</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" id="nav_links" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link active" id="nav_links" href="data.html">Data</a></li>
+                    <li class="nav-item"><a class="nav-link" id="nav_links" href="analysis.html">Analysis</a></li>
+                    <li class="nav-item"><a class="nav-link" id="nav_links" href="contact-us.html">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="page">
+        <section>
+            <div class="container" style="padding: 43px;height: 164px;">
+                <div>
+                    <h2 class="text-center text-info">Data Profiles</h2>
+                    <p>Search below for the hospital or health system you are interested in profiling. Raw is what we pulled from from the hospitals with no additional curation. Curated is grouped by health system, formatted, and includes only major payers. Presentation is the aggregation of the curated layer.&nbsp;</p>
+                </div>
+            </div>
+        </section>
+        <section class="clean-block features">
+            <div style="padding: 26px;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col"><div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Hospitals (Count)</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">+70</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-hospital fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                        <div class="col-md-4"><div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Data Size (Total)</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">+10GB</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-database fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                        <div class="col"><div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Metrics Calculated</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">+20</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                    </div>
+                </div>
+            </div><div></div>
+<div class="container">
+<table id="profile_table" class="table table-striped" style="width:100%">  
+    <thead>
+        <th>Raw</th>
+        <th>Curated</th>
+        <th>Presentation</th>
+    <thead>
+    <tbody>
+      <tr>
+        <td><a href='profiles/app-regional-health-system_watauga_medical_center_cdm_with_standard_charges_.html'>App Regional Watauga Medical Center CDM with Standard Charges </a></td>
+        <td><a href='profiles/curated_app.html'>App Regional Health</a></td>
+        <td><a href='profiles/presentation_nc_hospitals_price_transparency.html'>All Major Hosptial and Health Sytstems</a></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/app-regional-health-system_watauga_medical_center_drg.html'>App Regional Watauga Medical Center DRG</a></td>
+        <td><a href='profiles/curated_atrium.html'>Atrium</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/app-regional-health-system_watauga_medical_center_shoppable.html'>App Regional Watauga Medical Center Shoppable</a></td>
+        <td><a href='profiles/curated_baptist.html'>Wake Forest Baptist</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/app-regional-health-system_charles_a_cannon_jr_memorial_hospital_cdm_with_standard_charges.html'>App Regional Charles A Cannon Jr Memorial Hospital CDM with Standard Charges</a></td>
+        <td><a href='profiles/curated_catawba.html'>Catawba Regional</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/app-regional-health-system_charles_a_cannon_jr_memorial_hospital_drg.html'>App Regional Charles A Cannon Jr Memorial Hospital DRG</a></td>
+        <td><a href='profiles/curated_cone.html'>Cone Health</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/app-regional-health-system_charles_a_cannon_jr_memorial_hospital_shoppable.html'>App Regional Charles A Cannon Jr Memorial Hospital Shoppable</a></td>
+        <td><a href='profiles/curated_duke.html'>Duke University Health System</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_anson_standard_charges.html'>Atrium Health Anson Standard Charges</a></td>
+        <td><a href='profiles/curated_first.html'>First Health</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_cabarrus_standard_charges.html'>Atrium Health Cabarrus Standard Charges</a></td>
+        <td><a href='profiles/curated_nhrmc.html'>New Hanover Regional Medical Center</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_cleveland_standard_charges.html'>Atrium Health Cleveland Standard Charges</a></td>
+        <td><a href='profiles/curated_northern.html'>NORTHERN Regional</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_lincoln_standard_charges.html'>Atrium Health Lincoln Standard Charges</a></td>
+        <td><a href='profiles/curated_novant.html'>Novant Health</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_pineville_standard_charges.html'>Atrium Health Pineville Standard Charges</a></td>
+        <td><a href='profiles/curated_vidant.html'>VIDANT</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_stanly_standard_charges.html'>Atrium Health Stanly Standard Charges</a></td>
+        <td><a href='profiles/curated_wakemed.html'>WAKEMED</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_union_standard_charges.html'>Atrium Health Union Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_university_standard_charges.html'>Atrium Health University Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_behavioral_health_standard_charges.html'>Atrium Health Behavioral Health Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_mercy_standard_charges.html'>Atrium Health Mercy Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_carolinas_medical_center_standard_charges.html'>Atrium Health Carolinas Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/atrium-health_carolinas_rehabilitation_standard_charges.html'>Atrium Health Carolinas Rehabilitation Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/catwaba_valley_medical_center.html'>catwaba Catawba Valley Medical Center</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/cateret-health-care_c_h_c___c_h_a_r_g_e___c_o_m_p_a_r_i_s_o_n.html'>Cateret Health Charge Master</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/cateret-health-care_c_h_c___c_h_a_r_g_e___d_e_s_c_r_i_p_t_i_o_n___m_a_s_t_e_r.html'>Cateret Health Charge Description</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/cone-health_alamance_regional_medical_center_standard_charges.html'>Cone Health Alamance Regional Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/cone-health_annie_penn_hospital_standard_charges.html'>Cone Health Annie Penn Hospital Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/cone-health_behavioral_health_hospital_standard_charges.html'>Cone Health Behavioral Health Hospital Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/cone-health_the_moses_cone_memorial_hospital_standard_charges.html'>Cone Health The Moses Cone Memorial Hospital Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/cone-health_wesley_long_hospital_standard_charges.html'>Cone Health Wesley Long Hospital Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/duke-university-hospital_duke_raleigh_hospital_standard_charges_cdm.html'>Duke Raleigh Hospital Standard Charges cdm</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/duke-university-hospital_duke_raleigh_hospital_standard_charges_drg.html'>Duke Raleigh Hospital Standard Charges drg</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/duke-university-hospital_duke_regional_hospital_standard_charges_cdm.html'>Duke Regional Hospital Standard Charges cdm</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/duke-university-hospital_duke_regional_hospital_standard_charges_drg.html'>Duke Regional Hospital Standard Charges drg</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/duke-university-hospital_duke_university_hospital_standard_charges_cdm.html'>Duke University Hospital Standard Charges cdm</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/duke-university-hospital_duke_university_hospital_standard_charges_drg.html'>Duke University Hospital Standard Charges drg</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/iredell-health_cdm_for.html'>Iredell Health Charge Master</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/iredell-health_ms_drg.html'>Iredell Health MS DRG Master</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_carepartners_op.html'>Mission Health Care Partners Outpateint</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_carepartners_outpatient_rehab.html'>Mission Health Care Partners Outpateint Rehabilitation</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_carepartners_rehabilitation_hospital.html'>Mission Health Carepartners rehabilitation hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_asheville_specialty_hospital.html'>Mission Health Asheville specialty hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_mission_hospital.html'>Mission Health Mission hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_blue_ridge_regional_hospital.html'>Mission Health Blue ridge regional hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_transylvania_regional_hospital.html'>Mission Health Transylvania regional hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_mcdowell_hospital.html'>Mission Health Mcdowell hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_highlands_cashiers_hospital.html'>Mission Health Highlands cashiers hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/mission-health_angel_medical_center.html'>Mission Health Angel medical center</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/nhrmc-health_new_hanover_regional_medical_center_standard_charges.html'>New Hanover Regional Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/nhrmc-health_pender_memorial_hospital_standard_charges.html'>New Hanover Regional Medical Center - Pender Memorial Hospital Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/north-carolina-baptist-hospital_davie_medical_center.html'>North Carolina Baptist Davie Medical Center</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/north-carolina-baptist-hospital_high_point_regional_medical_center.html'>North Carolina Baptist High Point Regional Medical Center</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/north-carolina-baptist-hospital_north_carolina_baptist_hospital.html'>North Carolina Baptist North Carolina Baptist Hospital</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/north-carolina-baptist-hospital_wilkes_regional_medical_center.html'>North Carolina Baptist Wilkes Regional Medical Center</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/northern-regional_standard_charges.html'>Northern Regional Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_brunswick_medical_center_standard_charges.html'>Novant Health Brunswick Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_minthill_medical_center_standard_charges.html'>Novant Health MintHill Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_rowan_medical_center_standard_charges.html'>Novant Health Rowan Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_charlotte_orthopedic_hospital_standard_charges.html'>Novant Health Charlotte Orthopedic Hospital Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_huntersville_medical_center_standard_charges.html'>Novant Health Huntersville Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_presbyterian_medical_center_standard_charges.html'>Novant Health Presbyterian Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_thomasville_medical_center_standard_charges.html'>Novant Health Thomasville Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_clemmons_medical_center_standard_charges.html'>Novant Health Clemmons Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_forsyth_medical_center_standard_charges.html'>Novant Health Forsyth Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_kernersville_medical_center_standard_charges.html'>Novant Health Kernersville Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_medical_park_hospital_standard_charges.html'>Novant Health Medical Park Hospital Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/novant-health_matthews_medical_center_standard_charges.html'>Novant Health Matthews Medical Center Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_beaufort_standard_charges.html'>Vidant Health BEAUFORT STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_medical_center_standard_charges.html'>Vidant Health MEDICAL CENTER STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_north_standard_charges.html'>Vidant Health NORTH STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_roanoke_chowan_standard_charges.html'>Vidant Health ROANOKE CHOWAN STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_bertie_standard_charges.html'>Vidant Health BERTIE STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_edgecombe_standard_charges.html'>Vidant Health EDGECOMBE STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_chowan_standard_charges.html'>Vidant Health CHOWAN STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_the_outer_banks_standard_charges.html'>Vidant Health THE OUTER BANKS STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/vidant-health_duplin_standard_charges.html'>Vidant Health DUPLIN STANDARD CHARGES</a></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href='profiles/wakemed_hopsital_standard_charges.html'>Wakemed  Standard Charges</a></td>
+        <td></td>
+        <td></td>
+      </tr>    
+</tbody>
+</table>
+</div>
+        </section>
+    </main>
+    <footer class="page-footer dark">
+        <div class="container">
+            <div class="row g-0">
+                <div class="col-auto col-sm-3 col-xxl-1 offset-xxl-0 m-auto">
+                    <h5>Data?</h5>
+                    <ul>
+                        <li style="color: var(--bs-light);"><a href="#">Download</a></li>
+                    </ul>
+                </div>
+                <div class="col-auto col-sm-3 col-xxl-1 offset-xxl-0 m-auto">
+                    <h5>Questions?</h5>
+                    <ul>
+                        <li><a href="contact-us.html">Contact us</a></li>
+                    </ul>
+                </div>
+                <div class="col-auto col-sm-3 col-xxl-3 m-auto">
+                    <h5>Need Support?</h5>
+                    <ul>
+                        <li style="color: var(--bs-body-bg);"><a href="https://github.com/wfclark5/nc-hospital-transparency/issues">Create an Issue on GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="w-100"></div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>© 2021</p>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.js"></script>
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.11.3/af-2.3.7/b-2.0.1/date-1.1.1/kt-2.6.4/r-2.2.9/sb-1.2.2/sp-1.4.0/sl-1.3.3/datatables.min.js"></script>
+    <script src="https://unpkg.com/@bootstrapstudio/bootstrap-better-nav/dist/bootstrap-better-nav.min.js"></script>
+    <script src="assets/js/script.min.js"></script>
+</body>
+
+</html>
