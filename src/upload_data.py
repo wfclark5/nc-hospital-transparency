@@ -1,4 +1,4 @@
-from process.profiles import *
+from process.utils import *
 
 abspath = os.path.dirname(os.path.normpath(os.path.abspath(os.path.dirname(__file__))))
 
@@ -12,11 +12,8 @@ profiles_path = os.path.normpath(os.path.join(abspath, 'docs', 'profiles'))
 
 make_zip(data_path, data_zip_path)
 
-s3 = s3fs.core.S3FileSystem(profile="franz")
+upload_to_s3('health_cost_service', 'nc-health-cost', profiles_path, 'profiles')
 
-
-upload_to_s3('nc_health_cost', profiles_path, 'profiles')
-
-upload_to_s3('nc_health_cost', data_zip_path, 'nc_health_cost_all.zip')
+upload_to_s3('health_cost_service', 'nc-health-cost', data_zip_path, 'nc_health_cost_all.zip')
 
 
